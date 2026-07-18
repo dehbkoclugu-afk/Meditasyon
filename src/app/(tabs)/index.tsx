@@ -1,33 +1,31 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { palette, space, type } from '@/design/tokens';
+import { AppText, BreathRing } from '@/components';
+import { space } from '@/design/tokens';
 
-const colors = palette.dark;
-
+// M3'te gerçek içerik gelecek: selamlama saate göre, öneri motoru, devam rafı.
 export default function TodayScreen() {
   return (
-    <View style={styles.screen}>
-      <Text style={styles.title}>Bugün</Text>
-      <Text style={styles.hint}>Günün önerisi ve devam eden program burada olacak. (M3)</Text>
+    <View style={styles.center}>
+      <BreathRing size={140} />
+      <View style={styles.copy}>
+        <AppText variant="display1">İyi akşamlar</AppText>
+        <AppText tone="secondary" style={styles.sub}>
+          Günün önerisi ve devam eden programın burada olacak.
+        </AppText>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  center: {
     flex: 1,
-    backgroundColor: colors.bg,
-    padding: space.screenMargin,
+    alignItems: 'center',
     justifyContent: 'center',
+    gap: space.xxl,
+    padding: space.screenMargin,
   },
-  title: {
-    color: colors.textPrimary,
-    fontSize: type.size.display1,
-    marginBottom: space.sm,
-  },
-  hint: {
-    color: colors.textSecondary,
-    fontSize: type.size.body,
-    lineHeight: type.size.body * type.bodyLineHeight,
-  },
+  copy: { alignItems: 'center', gap: space.xs },
+  sub: { textAlign: 'center', maxWidth: 280 },
 });

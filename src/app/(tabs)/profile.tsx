@@ -1,33 +1,25 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { palette, space, type } from '@/design/tokens';
+import { AppText, Screen, StatTile } from '@/components';
+import { space } from '@/design/tokens';
 
-const colors = palette.dark;
-
+// M6'da gerçek veri gelecek: istatistik store'u, favoriler, ayarlar girişi.
 export default function ProfileScreen() {
   return (
-    <View style={styles.screen}>
-      <Text style={styles.title}>Sen</Text>
-      <Text style={styles.hint}>İstatistikler, favoriler ve ayarlar burada olacak. (M6)</Text>
-    </View>
+    <Screen>
+      <View style={styles.stack}>
+        <AppText variant="display2">Sen</AppText>
+        <View style={styles.tiles}>
+          <StatTile value="0" label="toplam dakika" />
+          <StatTile value="0" label="seans" />
+          <StatTile value="0" label="seri (gün)" />
+        </View>
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    padding: space.screenMargin,
-    justifyContent: 'center',
-  },
-  title: {
-    color: colors.textPrimary,
-    fontSize: type.size.display1,
-    marginBottom: space.sm,
-  },
-  hint: {
-    color: colors.textSecondary,
-    fontSize: type.size.body,
-    lineHeight: type.size.body * type.bodyLineHeight,
-  },
+  stack: { gap: space.lg },
+  tiles: { flexDirection: 'row', gap: space.sm },
 });

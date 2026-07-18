@@ -1,33 +1,20 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { palette, space, type } from '@/design/tokens';
+import { AppText, Screen } from '@/components';
+import { space } from '@/design/tokens';
 
-const colors = palette.dark;
-
+// M6'da gerçek içerik gelecek: patern kartları (Kutu, 4-7-8), egzersiz ekranı.
 export default function BreatheScreen() {
   return (
-    <View style={styles.screen}>
-      <Text style={styles.title}>Nefes</Text>
-      <Text style={styles.hint}>Nefes egzersizleri ve halka animasyonu burada olacak. (M6)</Text>
-    </View>
+    <Screen>
+      <View style={styles.stack}>
+        <AppText variant="display2">Nefes</AppText>
+        <AppText tone="secondary">Nefes egzersizleri burada olacak.</AppText>
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    padding: space.screenMargin,
-    justifyContent: 'center',
-  },
-  title: {
-    color: colors.textPrimary,
-    fontSize: type.size.display1,
-    marginBottom: space.sm,
-  },
-  hint: {
-    color: colors.textSecondary,
-    fontSize: type.size.body,
-    lineHeight: type.size.body * type.bodyLineHeight,
-  },
+  stack: { gap: space.xs },
 });

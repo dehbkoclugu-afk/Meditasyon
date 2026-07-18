@@ -39,9 +39,18 @@ export const categoryColors = {
   'oz-sefkat': '#C39BB4',
 } as const;
 
+// Font aileleri @expo-google-fonts paketlerinin yüklediği gerçek adlardır.
+// Display (Fraunces) yalnız başlık ve seans adlarında; buton, etiket ve
+// rakamlar Albert Sans kullanır (product register kuralı).
+export const fonts = {
+  display: 'Fraunces_600SemiBold',
+  displayItalic: 'Fraunces_400Regular_Italic',
+  body: 'AlbertSans_400Regular',
+  bodyMedium: 'AlbertSans_500Medium',
+  bodyBold: 'AlbertSans_700Bold',
+} as const;
+
 export const type = {
-  display: 'Fraunces',
-  body: 'AlbertSans',
   size: { display1: 34, display2: 28, display3: 22, body: 17, secondary: 15, caption: 13 },
   bodyLineHeight: 1.5,
 } as const;
@@ -70,5 +79,5 @@ export const motion = {
   breathCycleMs: 4000,
 } as const;
 
-export type ThemeColors = (typeof palette)['dark'];
+export type ThemeColors = { [K in keyof (typeof palette)['dark']]: string };
 export type CategoryId = keyof typeof categoryColors;

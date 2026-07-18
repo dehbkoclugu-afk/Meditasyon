@@ -1,33 +1,20 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { palette, space, type } from '@/design/tokens';
+import { AppText, Screen } from '@/components';
+import { space } from '@/design/tokens';
 
-const colors = palette.dark;
-
+// M3'te gerçek içerik gelecek: arama, kategori grid'i, program rafı.
 export default function ExploreScreen() {
   return (
-    <View style={styles.screen}>
-      <Text style={styles.title}>Keşfet</Text>
-      <Text style={styles.hint}>Kategoriler, programlar ve arama burada olacak. (M3)</Text>
-    </View>
+    <Screen>
+      <View style={styles.stack}>
+        <AppText variant="display2">Keşfet</AppText>
+        <AppText tone="secondary">Kategoriler, programlar ve arama burada olacak.</AppText>
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    padding: space.screenMargin,
-    justifyContent: 'center',
-  },
-  title: {
-    color: colors.textPrimary,
-    fontSize: type.size.display1,
-    marginBottom: space.sm,
-  },
-  hint: {
-    color: colors.textSecondary,
-    fontSize: type.size.body,
-    lineHeight: type.size.body * type.bodyLineHeight,
-  },
+  stack: { gap: space.xs },
 });
