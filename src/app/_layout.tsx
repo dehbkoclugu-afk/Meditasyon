@@ -15,10 +15,12 @@ import { useEffect } from 'react';
 
 import { ThemeProvider, useTheme } from '@/design/theme';
 import { fonts } from '@/design/tokens';
+import { usePurchasesInit } from '@/features/purchases/usePurchasesInit';
 
 SplashScreen.preventAutoHideAsync();
 
 function AppStack() {
+  usePurchasesInit();
   const { colors, isDark } = useTheme();
   return (
     <>

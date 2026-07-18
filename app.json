@@ -42,6 +42,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "revenueCat": {
+        "iosApiKey": "",
+        "androidApiKey": ""
+      }
     }
   }
 }
