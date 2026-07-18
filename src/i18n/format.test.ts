@@ -1,4 +1,13 @@
-import { dayPartForHour, durationLabel, lowerTr, normalizeSearch, upperTr } from './format';
+import { dayPartForHour, durationLabel, lowerTr, normalizeSearch, timeLabel, upperTr } from './format';
+
+describe('timeLabel', () => {
+  it('dakika:saniye biçimler', () => {
+    expect(timeLabel(0)).toBe('0:00');
+    expect(timeLabel(65)).toBe('1:05');
+    expect(timeLabel(754)).toBe('12:34');
+    expect(timeLabel(-3)).toBe('0:00');
+  });
+});
 
 describe('Türkçe büyük/küçük harf', () => {
   it('i → İ (noktalı), ı → I (noktasız)', () => {

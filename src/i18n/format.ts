@@ -13,6 +13,14 @@ export function durationLabel(seconds: number, locale: 'tr' | 'en'): string {
   return locale === 'tr' ? `${minutes} dk` : `${minutes} min`;
 }
 
+/** Saniyeyi "12:34" biçimine çevirir (player süre göstergesi). */
+export function timeLabel(seconds: number): string {
+  const total = Math.max(0, Math.floor(seconds));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
 /** Arama için diakritik-duyarsız normalizasyon: "Şükran" ve "sukran" eşleşir. */
 export function normalizeSearch(text: string): string {
   const folded: Record<string, string> = {
