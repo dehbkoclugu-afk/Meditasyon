@@ -22,4 +22,12 @@ Expo Go yerine **EAS dev build** kullanılır (M4'ten itibaren).
 ## İçerik
 
 Ses kayıtları `content/raw/` altına (git dışı) konur, `npm run content:ingest` ile
-normalize edilip `content/audio/`'ya işlenir; katalog `content/catalog.json`'dadır. (M2)
+normalize edilip `content/audio/`'ya işlenir; katalog `content/catalog.json`'dadır.
+Kayıt rehberi: [docs/RECORDING.md](./docs/RECORDING.md)
+
+## Yayın
+
+- Adım adım: [docs/RELEASE.md](./docs/RELEASE.md)
+- RevenueCat kurulumu: [docs/REVENUECAT.md](./docs/REVENUECAT.md)
+- Mağaza metinleri: [docs/STORE.md](./docs/STORE.md)
+- Yasal taslaklar: `docs/legal/`

@@ -11,7 +11,9 @@
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.sakin.meditasyon",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": ["audio"],
+        "CFBundleLocalizations": ["tr", "en"],
+        "CFBundleDevelopmentRegion": "tr"
       }
     },
     "android": {
@@ -30,6 +32,13 @@
     },
     "plugins": [
       "expo-router",
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "default"
+        }
+      ],
       [
         "expo-splash-screen",
         {
