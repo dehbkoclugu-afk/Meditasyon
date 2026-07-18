@@ -14,6 +14,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { ThemeProvider, useTheme } from '@/design/theme';
+import { fonts } from '@/design/tokens';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,6 +27,10 @@ function AppStack() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: colors.bg },
+          headerStyle: { backgroundColor: colors.surface },
+          headerTintColor: colors.textPrimary,
+          headerTitleStyle: { fontFamily: fonts.bodyMedium },
+          headerShadowVisible: false,
         }}
       />
     </>

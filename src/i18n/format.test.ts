@@ -1,4 +1,4 @@
-import { durationLabel, lowerTr, upperTr } from './format';
+import { dayPartForHour, durationLabel, lowerTr, normalizeSearch, upperTr } from './format';
 
 describe('Türkçe büyük/küçük harf', () => {
   it('i → İ (noktalı), ı → I (noktasız)', () => {
@@ -9,6 +9,24 @@ describe('Türkçe büyük/küçük harf', () => {
   it('İ → i, I → ı', () => {
     expect(lowerTr('İSTANBUL')).toBe('istanbul');
     expect(lowerTr('IŞIK')).toBe('ışık');
+  });
+});
+
+describe('normalizeSearch', () => {
+  it('diakritikleri katlar: Şükran ↔ sukran', () => {
+    expect(normalizeSearch('Şükran')).toBe('sukran');
+    expect(normalizeSearch('IŞIK')).toBe('isik');
+    expect(normalizeSearch('Uykuya Yumuşak Geçiş')).toBe('uykuya yumusak gecis');
+  });
+});
+
+describe('dayPartForHour', () => {
+  it('saat dilimlerini doğru ayırır', () => {
+    expect(dayPartForHour(7)).toBe('sabah');
+    expect(dayPartForHour(13)).toBe('gunduz');
+    expect(dayPartForHour(19)).toBe('aksam');
+    expect(dayPartForHour(23)).toBe('gece');
+    expect(dayPartForHour(3)).toBe('gece');
   });
 });
 
