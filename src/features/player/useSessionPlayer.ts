@@ -1,4 +1,6 @@
+import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Platform } from 'react-native';
 
 import { getAudioBackend } from './backend';
 import { fadeVolume, findProgramDay, isSessionCompleted, sleepTimerSeconds, type SleepTimerChoice } from './logic';
@@ -7,6 +9,8 @@ import { audioAssets } from '@/content/audio-map';
 import { catalog } from '@/content/catalog';
 import type { Session } from '@/content/schema';
 import { useProgress } from '@/stores/progress';
+import { useSettings } from '@/stores/settings';
+import { useStats } from '@/stores/stats';
 
 const POLL_MS = 500;
 const FADE_STEPS = 10;
@@ -46,7 +50,11 @@ export function useSessionPlayer(session: Session) {
     markCompleted(session.id);
     const day = findProgramDay(catalog, session.id);
     if (day) completeProgramDay(day.program.id, day.dayIndex);
-  }, [completeProgramDay, markCompleted, session.id]);
+    useStats.getState().recordSession(session.durationSec);
+    if (Platform.OS !== 'web' && useSettings.getState().hapticsEnabled) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    }
+  }, [completeProgramDay, markCompleted, session.durationSec, session.id]);
 
   // Yükleme + durum döngüsü
   useEffect(() => {

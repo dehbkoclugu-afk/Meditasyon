@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 import { ThemeProvider, useTheme } from '@/design/theme';
 import { fonts } from '@/design/tokens';
 import { usePurchasesInit } from '@/features/purchases/usePurchasesInit';
+import { useSettings } from '@/stores/settings';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,6 +41,7 @@ function AppStack() {
 }
 
 export default function RootLayout() {
+  const themeMode = useSettings((s) => s.themeMode);
   const [fontsLoaded, fontError] = useFonts({
     Fraunces_600SemiBold,
     Fraunces_400Regular_Italic,
@@ -59,7 +61,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
+    <ThemeProvider mode={themeMode}>
       <AppStack />
     </ThemeProvider>
   );

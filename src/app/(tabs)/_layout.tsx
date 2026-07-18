@@ -1,11 +1,16 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 
 import { BreathIcon, CompassIcon, SeedIcon, SunHorizonIcon } from '@/components/icons';
 import { fonts } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
+import { useSettings } from '@/stores/settings';
 
 export default function TabsLayout() {
   const { colors } = useTheme();
+  const onboardingDone = useSettings((s) => s.onboardingDone);
+  if (!onboardingDone) {
+    return <Redirect href="/onboarding" />;
+  }
   return (
     <Tabs
       screenOptions={{
