@@ -1,4 +1,5 @@
 import { Stack, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 
@@ -14,16 +15,16 @@ import { usePremium } from '@/stores/premium';
 // Apple kontrol listesi: kapatma X'i baştan görünür, geri yükle + şartlar +
 // gizlilik linkleri, "Ücretsiz devam et" her zaman erişilebilir.
 
-const PLAN_TITLES: Record<PlanId, string> = {
-  yearly: 'Yıllık',
-  monthly: 'Aylık',
-  lifetime: 'Ömür boyu',
+const PLAN_TITLE_KEYS: Record<PlanId, string> = {
+  yearly: 'paywall.yearly',
+  monthly: 'paywall.monthly',
+  lifetime: 'paywall.lifetime',
 };
 
-const PLAN_PERIOD: Record<PlanId, string> = {
-  yearly: '/yıl',
-  monthly: '/ay',
-  lifetime: 'tek seferlik',
+const PLAN_PERIOD_KEYS: Record<PlanId, string> = {
+  yearly: 'paywall.perYear',
+  monthly: 'paywall.perMonth',
+  lifetime: 'paywall.oneTime',
 };
 
 // Yayın öncesi gerçek URL'lere bağlanacak (M8, docs/legal → GitHub Pages)
@@ -33,6 +34,7 @@ const PRIVACY_URL = 'https://example.com/sakin/gizlilik';
 type LoadState = 'loading' | 'ready' | 'unavailable';
 
 export default function PaywallScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { colors } = useTheme();
   const setPremium = usePremium((s) => s.setPremium);
@@ -77,7 +79,7 @@ export default function PaywallScreen() {
       setPremium(true);
       router.back();
     } else if (result === 'error') {
-      setError('Satın alma tamamlanamadı. Tekrar dener misin?');
+      setError(t('paywall.purchaseError'));
     } // cancelled: sessiz
   }
 
@@ -91,7 +93,7 @@ export default function PaywallScreen() {
       setPremium(true);
       router.back();
     } else {
-      setError('Geri yüklenecek satın alma bulunamadı.');
+      setError(t('paywall.restoreEmpty'));
     }
   }
 
@@ -102,7 +104,7 @@ export default function PaywallScreen() {
         <View style={styles.stack}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Kapat"
+            accessibilityLabel={t('common.close')}
             onPress={() => router.back()}
             style={styles.close}
             hitSlop={12}
@@ -113,16 +115,12 @@ export default function PaywallScreen() {
           </Pressable>
 
           <View style={styles.header}>
-            <AppText variant="display1">Sakin Premium</AppText>
-            <AppText tone="secondary">Pratiğini derinleştir — tüm kütüphane, sınırsız.</AppText>
+            <AppText variant="display1">{t('paywall.title')}</AppText>
+            <AppText tone="secondary">{t('paywall.subtitle')}</AppText>
           </View>
 
           <View style={styles.perks}>
-            {[
-              'Tüm meditasyonlar ve programlar',
-              'Uyku hikâyelerinin tamamı',
-              'Her ay yeni içerik',
-            ].map((perk) => (
+            {[t('paywall.perk1'), t('paywall.perk2'), t('paywall.perk3')].map((perk) => (
               <View key={perk} style={styles.perkRow}>
                 <View style={[styles.perkDot, { backgroundColor: colors.accent }]} />
                 <AppText>{perk}</AppText>
@@ -132,15 +130,15 @@ export default function PaywallScreen() {
 
           {loadState === 'loading' && (
             <View style={[styles.infoBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <AppText tone="secondary">Planlar yükleniyor…</AppText>
+              <AppText tone="secondary">{t('paywall.loading')}</AppText>
             </View>
           )}
 
           {loadState === 'unavailable' && (
             <View style={[styles.infoBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <AppText variant="bodyMedium">Mağaza bağlantısı bu ortamda yok</AppText>
+              <AppText variant="bodyMedium">{t('paywall.unavailableTitle')}</AppText>
               <AppText variant="caption" tone="secondary">
-                Planlar cihazda, RevenueCat yapılandırması sonrası görünür (docs/REVENUECAT.md).
+                {t('paywall.unavailableBody')}
               </AppText>
             </View>
           )}
@@ -165,19 +163,19 @@ export default function PaywallScreen() {
                     ]}
                   >
                     <View style={styles.planTop}>
-                      <AppText variant="bodyMedium">{PLAN_TITLES[plan.id]}</AppText>
+                      <AppText variant="bodyMedium">{t(PLAN_TITLE_KEYS[plan.id])}</AppText>
                       {featured && savings !== null && (
                         <View style={[styles.badge, { backgroundColor: colors.accentSoft }]}>
                           <AppText variant="caption" style={{ color: colors.accent }}>
-                            %{savings} tasarruf
+                            {t('paywall.savings', { percent: savings })}
                           </AppText>
                         </View>
                       )}
                     </View>
                     <AppText variant="secondary" tone="secondary">
-                      {plan.trialLabel ? `${plan.trialLabel}, sonra ` : ''}
+                      {plan.trialLabel ? t('paywall.trialThen', { trial: plan.trialLabel }) : ''}
                       {plan.priceLabel}
-                      {PLAN_PERIOD[plan.id] === 'tek seferlik' ? ' · tek seferlik' : PLAN_PERIOD[plan.id]}
+                      {plan.id === 'lifetime' ? ` · ${t('paywall.oneTime')}` : t(PLAN_PERIOD_KEYS[plan.id])}
                     </AppText>
                   </Pressable>
                 );
@@ -194,19 +192,19 @@ export default function PaywallScreen() {
           <View style={styles.actions}>
             {loadState === 'ready' && (
               <Button
-                label={selectedPlan?.trialLabel ? 'Denemeyi başlat' : 'Premium’a geç'}
+                label={selectedPlan?.trialLabel ? t('paywall.startTrial') : t('paywall.buy')}
                 onPress={buy}
                 loading={busy}
               />
             )}
-            <Button label="Ücretsiz devam et" variant="ghost" onPress={() => router.back()} />
-            <Button label="Satın alımları geri yükle" variant="text" onPress={restore} />
+            <Button label={t('paywall.continueFree')} variant="ghost" onPress={() => router.back()} />
+            <Button label={t('paywall.restore')} variant="text" onPress={restore} />
           </View>
 
           <View style={styles.legal}>
             <Pressable onPress={() => Linking.openURL(TERMS_URL)} hitSlop={8}>
               <AppText variant="caption" tone="secondary">
-                Kullanım Koşulları
+                {t('paywall.terms')}
               </AppText>
             </Pressable>
             <AppText variant="caption" tone="secondary">
@@ -214,7 +212,7 @@ export default function PaywallScreen() {
             </AppText>
             <Pressable onPress={() => Linking.openURL(PRIVACY_URL)} hitSlop={8}>
               <AppText variant="caption" tone="secondary">
-                Gizlilik Politikası
+                {t('paywall.privacy')}
               </AppText>
             </Pressable>
           </View>

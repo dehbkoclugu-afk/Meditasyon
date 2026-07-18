@@ -1,4 +1,5 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText, CoverArt, LockBadge, Screen } from '@/components';
@@ -6,12 +7,15 @@ import { canAccessProgramDay } from '@/content/access';
 import { programDaySessions, programsById } from '@/content/catalog';
 import { useOpenSession } from '@/features/navigation';
 import { durationLabel } from '@/i18n/format';
+import { useLocale } from '@/i18n';
 import { radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { usePremium } from '@/stores/premium';
 import { useProgress } from '@/stores/progress';
 
 export default function ProgramScreen() {
+  const { t } = useTranslation();
+  const locale = useLocale();
   const { programId } = useLocalSearchParams<{ programId: string }>();
   const { colors } = useTheme();
   const openSession = useOpenSession();
@@ -22,7 +26,7 @@ export default function ProgramScreen() {
   if (!program) {
     return (
       <Screen>
-        <AppText variant="display2">Program bulunamadı</AppText>
+        <AppText variant="display2">{t('common.notFound')}</AppText>
       </Screen>
     );
   }
@@ -33,12 +37,12 @@ export default function ProgramScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: program.title.tr, headerBackTitle: 'Geri' }} />
+      <Stack.Screen options={{ headerShown: true, title: program.title[locale], headerBackTitle: t('common.back') }} />
       <Screen scroll>
         <View style={styles.stack}>
           <CoverArt seed={program.id} categoryId={days[0].categories[0]} height={148} />
-          <AppText variant="display1">{program.title.tr}</AppText>
-          <AppText tone="secondary">{program.description.tr}</AppText>
+          <AppText variant="display1">{program.title[locale]}</AppText>
+          <AppText tone="secondary">{program.description[locale]}</AppText>
 
           <View style={styles.dayList}>
             {days.map((session, index) => {
@@ -53,7 +57,7 @@ export default function ProgramScreen() {
                 <Pressable
                   key={session.id}
                   accessibilityRole="button"
-                  accessibilityLabel={`Gün ${index + 1}: ${session.title.tr}${isCompleted ? ', tamamlandı' : locked ? ', kilitli' : ''}`}
+                  accessibilityLabel={`${t('program.day', { day: index + 1 })}: ${session.title[locale]}${isCompleted ? `, ${t('program.completed')}` : locked ? `, ${t('program.locked')}` : ''}`}
                   disabled={sequenceLocked}
                   onPress={() => openSession(session)}
                   style={({ pressed }) => [
@@ -81,10 +85,10 @@ export default function ProgramScreen() {
                   </View>
                   <View style={styles.dayMeta}>
                     <AppText variant="bodyMedium" numberOfLines={1}>
-                      {session.title.tr}
+                      {session.title[locale]}
                     </AppText>
                     <AppText variant="caption" tone="secondary">
-                      {durationLabel(session.durationSec, 'tr')}
+                      {durationLabel(session.durationSec, locale)}
                     </AppText>
                   </View>
                   {accessLocked && !sequenceLocked ? <LockBadge /> : null}

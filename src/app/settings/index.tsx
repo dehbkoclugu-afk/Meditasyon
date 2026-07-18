@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
 import { Stack } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Linking, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
 
 import { AppText, Screen } from '@/components';
@@ -21,16 +22,17 @@ const REMINDER_TIMES = [
   { label: '22:00', hour: 22, minute: 0 },
 ];
 
-const THEME_OPTIONS: { mode: ThemeMode; label: string }[] = [
-  { mode: 'system', label: 'Otomatik' },
-  { mode: 'dark', label: 'Koyu' },
-  { mode: 'light', label: 'Açık' },
+const THEME_OPTIONS: { mode: ThemeMode; labelKey: string }[] = [
+  { mode: 'system', labelKey: 'settings.themeAuto' },
+  { mode: 'dark', labelKey: 'settings.themeDark' },
+  { mode: 'light', labelKey: 'settings.themeLight' },
 ];
 
 const TERMS_URL = 'https://example.com/sakin/kosullar';
 const PRIVACY_URL = 'https://example.com/sakin/gizlilik';
 
 export default function SettingsScreen() {
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const settings = useSettings();
   const setPremium = usePremium((s) => s.setPremium);
@@ -69,17 +71,17 @@ export default function SettingsScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: 'Ayarlar', headerBackTitle: 'Geri' }} />
+      <Stack.Screen options={{ headerShown: true, title: t('settings.title'), headerBackTitle: t('common.back') }} />
       <Screen scroll>
         <View style={styles.stack}>
-          <Section title="GÖRÜNÜM">
+          <Section title={t('settings.appearance')}>
             <View style={styles.chipRow}>
               {THEME_OPTIONS.map((option) => {
                 const active = settings.themeMode === option.mode;
                 return (
                   <Chip
                     key={option.mode}
-                    label={option.label}
+                    label={t(option.labelKey)}
                     active={active}
                     onPress={() => settings.setThemeMode(option.mode)}
                   />
@@ -88,8 +90,27 @@ export default function SettingsScreen() {
             </View>
           </Section>
 
-          <Section title="HATIRLATICI">
-            <Row label="Günlük hatırlatıcı">
+          <Section title={t('settings.language')}>
+            <View style={styles.chipRow}>
+              {(
+                [
+                  { value: 'system', label: t('settings.langSystem') },
+                  { value: 'tr', label: 'Türkçe' },
+                  { value: 'en', label: 'English' },
+                ] as const
+              ).map((option) => (
+                <Chip
+                  key={option.value}
+                  label={option.label}
+                  active={settings.language === option.value}
+                  onPress={() => settings.setLanguage(option.value)}
+                />
+              ))}
+            </View>
+          </Section>
+
+          <Section title={t('settings.reminder')}>
+            <Row label={t('settings.dailyReminder')}>
               <Switch
                 value={settings.reminder.enabled}
                 onValueChange={toggleReminder}
@@ -115,8 +136,8 @@ export default function SettingsScreen() {
             )}
           </Section>
 
-          <Section title="SEANS">
-            <Row label="Dokunsal geri bildirim">
+          <Section title={t('settings.session')}>
+            <Row label={t('settings.haptics')}>
               <Switch
                 value={settings.hapticsEnabled}
                 onValueChange={settings.setHapticsEnabled}
@@ -126,16 +147,16 @@ export default function SettingsScreen() {
             </Row>
           </Section>
 
-          <Section title="PREMIUM">
-            <Row label={isPremium ? 'Üyelik: aktif' : 'Üyelik: ücretsiz'} />
-            {isPremium && <LinkRow label="Aboneliği yönet" onPress={manageSubscription} />}
-            <LinkRow label="Satın alımları geri yükle" onPress={restore} />
+          <Section title={t('settings.premium')}>
+            <Row label={isPremium ? t('settings.membershipActive') : t('settings.membershipFree')} />
+            {isPremium && <LinkRow label={t('settings.manageSubscription')} onPress={manageSubscription} />}
+            <LinkRow label={t('settings.restore')} onPress={restore} />
           </Section>
 
-          <Section title="HAKKINDA">
-            <LinkRow label="Kullanım Koşulları" onPress={() => Linking.openURL(TERMS_URL)} />
-            <LinkRow label="Gizlilik Politikası" onPress={() => Linking.openURL(PRIVACY_URL)} />
-            <Row label={`Sürüm ${Constants.expoConfig?.version ?? '1.0.0'}`} />
+          <Section title={t('settings.about')}>
+            <LinkRow label={t('paywall.terms')} onPress={() => Linking.openURL(TERMS_URL)} />
+            <LinkRow label={t('paywall.privacy')} onPress={() => Linking.openURL(PRIVACY_URL)} />
+            <Row label={t('settings.version', { version: Constants.expoConfig?.version ?? '1.0.0' })} />
           </Section>
         </View>
       </Screen>

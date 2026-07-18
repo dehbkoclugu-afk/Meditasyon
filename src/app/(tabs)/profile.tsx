@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText, Screen, SessionCard, StatTile } from '@/components';
@@ -8,6 +9,7 @@ import { computeBadges } from '@/features/stats/badges';
 import { effectiveStreak, localDateKey } from '@/features/stats/streak';
 import { useOpenSession } from '@/features/navigation';
 import { durationLabel } from '@/i18n/format';
+import { useLocale } from '@/i18n';
 import { radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { usePremium } from '@/stores/premium';
@@ -15,6 +17,8 @@ import { useProgress } from '@/stores/progress';
 import { useStats } from '@/stores/stats';
 
 export default function ProfileScreen() {
+  const { t } = useTranslation();
+  const locale = useLocale();
   const router = useRouter();
   const { colors } = useTheme();
   const openSession = useOpenSession();
@@ -41,30 +45,30 @@ export default function ProfileScreen() {
     <Screen scroll>
       <View style={styles.stack}>
         <View style={styles.headerRow}>
-          <AppText variant="display2">Sen</AppText>
+          <AppText variant="display2">{t('profile.title')}</AppText>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Ayarlar"
+            accessibilityLabel={t('profile.settings')}
             onPress={() => router.push('/settings')}
             hitSlop={8}
             style={styles.settingsLink}
           >
             <AppText variant="bodyMedium" tone="accent">
-              Ayarlar
+              {t('profile.settings')}
             </AppText>
           </Pressable>
         </View>
 
         <View style={styles.tiles}>
-          <StatTile value={String(stats.totalMinutes)} label="toplam dakika" />
-          <StatTile value={String(stats.totalSessions)} label="seans" />
-          <StatTile value={String(streak)} label="seri (gün)" />
+          <StatTile value={String(stats.totalMinutes)} label={t('profile.totalMinutes')} />
+          <StatTile value={String(stats.totalSessions)} label={t('profile.sessions')} />
+          <StatTile value={String(streak)} label={t('profile.streak')} />
         </View>
 
         {/* Isı şeridi: son 8 hafta, tek renkli amber (PLAN.md §6.7) */}
         <View style={[styles.heatCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <AppText variant="caption" tone="secondary">
-            SON 8 HAFTA
+            {t('profile.last8Weeks')}
           </AppText>
           <HeatStrip activeDays={stats.activeDays} />
         </View>
@@ -73,9 +77,9 @@ export default function ProfileScreen() {
           style={[styles.premiumCard, { backgroundColor: colors.surfaceHigh, borderColor: colors.border }]}
         >
           <View style={styles.premiumMeta}>
-            <AppText variant="bodyMedium">{isPremium ? 'Premium üyesin' : 'Sakin Premium'}</AppText>
+            <AppText variant="bodyMedium">{isPremium ? t('profile.premiumActive') : t('profile.premiumCta')}</AppText>
             <AppText variant="caption" tone="secondary">
-              {isPremium ? 'Tüm kütüphane açık' : 'Tüm kütüphaneyi aç'}
+              {isPremium ? t('profile.premiumActiveBody') : t('profile.premiumCtaBody')}
             </AppText>
           </View>
           {!isPremium && (
@@ -85,13 +89,13 @@ export default function ProfileScreen() {
               style={[styles.premiumCta, { backgroundColor: colors.accent }]}
             >
               <AppText variant="caption" tone="inverse">
-                İncele
+                {t('profile.premiumSee')}
               </AppText>
             </Pressable>
           )}
         </View>
 
-        <AppText variant="display3">Rozetler</AppText>
+        <AppText variant="display3">{t('profile.badges')}</AppText>
         <View style={styles.badgeGrid}>
           {badges.map((badge) => (
             <View
@@ -106,26 +110,26 @@ export default function ProfileScreen() {
               ]}
             >
               <AppText variant="caption" style={badge.earned ? { color: colors.accent } : undefined}>
-                {badge.title}
+                {t(`badges.${badge.id}`)}
               </AppText>
             </View>
           ))}
         </View>
 
-        <AppText variant="display3">Favoriler</AppText>
+        <AppText variant="display3">{t('profile.favorites')}</AppText>
         {favoriteSessions.length === 0 ? (
           <AppText variant="secondary" tone="secondary">
-            {"Player'daki kalple beğendiğin seanslar burada birikir."}
+            {t('profile.favoritesEmpty')}
           </AppText>
         ) : (
           favoriteSessions.map((session) => (
             <SessionCard
               key={session.id}
               id={session.id}
-              title={session.title.tr}
-              durationLabel={durationLabel(session.durationSec, 'tr')}
+              title={session.title[locale]}
+              durationLabel={durationLabel(session.durationSec, locale)}
               categoryLabel={
-                catalog.categories.find((c) => c.id === session.categories[0])?.name.tr ?? ''
+                catalog.categories.find((c) => c.id === session.categories[0])?.name[locale] ?? ''
               }
               categoryId={session.categories[0]}
               locked={!canAccessSession(session, isPremium)}
@@ -139,6 +143,7 @@ export default function ProfileScreen() {
 }
 
 function HeatStrip({ activeDays }: { activeDays: string[] }) {
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const active = new Set(activeDays);
   const days: { key: string; on: boolean }[] = [];
@@ -150,7 +155,7 @@ function HeatStrip({ activeDays }: { activeDays: string[] }) {
     days.push({ key, on: active.has(key) });
   }
   return (
-    <View style={styles.heatGrid} accessibilityLabel={`Son 8 haftada ${active.size} aktif gün`}>
+    <View style={styles.heatGrid} accessibilityLabel={t('profile.heatLabel', { count: active.size })}>
       {days.map((day) => (
         <View
           key={day.key}

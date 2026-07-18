@@ -20,5 +20,12 @@ export function AppText({ variant = 'body', tone = 'primary', color, style, ...r
     danger: colors.danger,
     inverse: colors.bg,
   }[tone];
-  return <Text {...rest} style={[textVariants[variant], { color: color ?? toneColor }, style]} />;
+  // Dinamik yazı boyutu %130'a kadar büyür, taşma kırpılmaz (PRODUCT.md erişilebilirlik)
+  return (
+    <Text
+      maxFontSizeMultiplier={1.3}
+      {...rest}
+      style={[textVariants[variant], { color: color ?? toneColor }, style]}
+    />
+  );
 }

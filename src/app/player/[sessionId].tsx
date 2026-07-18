@@ -1,4 +1,5 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -17,33 +18,35 @@ import { catalog, sessionsById } from '@/content/catalog';
 import { useAmbience, type AmbienceVolume } from '@/features/player/useAmbience';
 import { useSessionPlayer } from '@/features/player/useSessionPlayer';
 import type { SleepTimerChoice } from '@/features/player/logic';
-import { timeLabel } from '@/i18n/format';
+import { timeLabel, upperFor } from '@/i18n/format';
+import { useLocale } from '@/i18n';
 import { radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { useProgress } from '@/stores/progress';
 
-const SLEEP_CHOICES: { value: SleepTimerChoice; label: string }[] = [
-  { value: 5, label: '5 dk' },
-  { value: 10, label: '10 dk' },
-  { value: 20, label: '20 dk' },
-  { value: 45, label: '45 dk' },
-  { value: 'end', label: 'Seans sonu' },
+const SLEEP_CHOICES: { value: SleepTimerChoice; labelKey: string }[] = [
+  { value: 5, labelKey: 'player.minutes5' },
+  { value: 10, labelKey: 'player.minutes10' },
+  { value: 20, labelKey: 'player.minutes20' },
+  { value: 45, labelKey: 'player.minutes45' },
+  { value: 'end', labelKey: 'player.sessionEnd' },
 ];
 
-const VOLUME_CHOICES: { value: AmbienceVolume; label: string }[] = [
-  { value: 0.35, label: 'Kısık' },
-  { value: 0.7, label: 'Orta' },
-  { value: 1, label: 'Yüksek' },
+const VOLUME_CHOICES: { value: AmbienceVolume; labelKey: string }[] = [
+  { value: 0.35, labelKey: 'player.volLow' },
+  { value: 0.7, labelKey: 'player.volMid' },
+  { value: 1, labelKey: 'player.volHigh' },
 ];
 
 export default function PlayerScreen() {
+  const { t } = useTranslation();
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const session = sessionId ? sessionsById.get(sessionId) : undefined;
 
   if (!session) {
     return (
       <Screen>
-        <AppText variant="display2">Seans bulunamadı</AppText>
+        <AppText variant="display2">{t('player.notFound')}</AppText>
       </Screen>
     );
   }
@@ -52,6 +55,8 @@ export default function PlayerScreen() {
 
 // Ayrı bileşen: hook'lar session garanti edildikten sonra koşulsuz çalışır.
 function Player({ sessionKey }: { sessionKey: string }) {
+  const { t } = useTranslation();
+  const locale = useLocale();
   const session = sessionsById.get(sessionKey)!;
   const router = useRouter();
   const { colors } = useTheme();
@@ -65,7 +70,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
   const [panel, setPanel] = useState<'none' | 'sleep' | 'ambience'>('none');
 
   const categoryName =
-    catalog.categories.find((c) => c.id === session.categories[0])?.name.tr ?? '';
+    catalog.categories.find((c) => c.id === session.categories[0])?.name[locale] ?? '';
   const progress = state.durationSec > 0 ? state.positionSec / state.durationSec : 0;
   const remaining = Math.max(0, state.durationSec - state.positionSec);
 
@@ -78,13 +83,13 @@ function Player({ sessionKey }: { sessionKey: string }) {
             <BreathRing size={140} />
             <View style={styles.finishCopy}>
               <AppText variant="display1" style={styles.centerText}>
-                Tamamlandı
+                {t('player.doneTitle')}
               </AppText>
               <AppText tone="secondary" style={styles.centerText}>
-                Bu anı kendine ayırdın. Yarın yine buluşalım mı?
+                {t('player.doneBody')}
               </AppText>
             </View>
-            <Button label="Kapat" onPress={() => router.back()} />
+            <Button label={t('common.close')} onPress={() => router.back()} />
           </View>
         </Screen>
       </>
@@ -98,7 +103,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
         <View style={styles.root}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Kapat"
+            accessibilityLabel={t('common.close')}
             onPress={() => router.back()}
             style={styles.close}
             hitSlop={12}
@@ -116,20 +121,20 @@ function Player({ sessionKey }: { sessionKey: string }) {
 
           <View style={styles.meta}>
             <AppText variant="caption" tone="secondary">
-              {categoryName.toLocaleUpperCase('tr')}
+              {upperFor(categoryName, locale)}
             </AppText>
             <AppText variant="display2" style={styles.centerText} numberOfLines={2}>
-              {session.title.tr}
+              {session.title[locale]}
             </AppText>
             <AppText variant="secondary" tone="secondary" style={{ fontVariant: ['tabular-nums'] }}>
-              {timeLabel(state.positionSec)} · kalan {timeLabel(remaining)}
+              {timeLabel(state.positionSec)} · {t('player.remaining', { time: timeLabel(remaining) })}
             </AppText>
           </View>
 
           <View style={styles.controls}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="15 saniye geri"
+              accessibilityLabel={t('player.back15')}
               onPress={() => seekBy(-15)}
               hitSlop={8}
               style={styles.sideControl}
@@ -139,7 +144,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
 
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={state.isPlaying ? 'Duraklat' : 'Oynat'}
+              accessibilityLabel={state.isPlaying ? t('player.pause') : t('player.play')}
               onPress={toggle}
               style={({ pressed }) => [
                 styles.playButton,
@@ -156,7 +161,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
 
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="15 saniye ileri"
+              accessibilityLabel={t('player.fwd15')}
               onPress={() => seekBy(15)}
               hitSlop={8}
               style={styles.sideControl}
@@ -168,7 +173,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
           <View style={styles.bottomRow}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+              accessibilityLabel={isFavorite ? t('player.favRemove') : t('player.favAdd')}
               onPress={() => toggleFavorite(session.id)}
               hitSlop={8}
               style={styles.bottomButton}
@@ -177,7 +182,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
             </Pressable>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Uyku zamanlayıcısı"
+              accessibilityLabel={t('player.sleepTimer')}
               onPress={() => setPanel(panel === 'sleep' ? 'none' : 'sleep')}
               hitSlop={8}
               style={styles.bottomButton}
@@ -186,7 +191,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
             </Pressable>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Arka plan sesi"
+              accessibilityLabel={t('player.ambience')}
               onPress={() => setPanel(panel === 'ambience' ? 'none' : 'ambience')}
               hitSlop={8}
               style={styles.bottomButton}
@@ -198,7 +203,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
           {panel === 'sleep' && (
             <View style={[styles.panel, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <AppText variant="caption" tone="secondary">
-                UYKU ZAMANLAYICISI
+                {t('player.sleepTitle')}
               </AppText>
               <View style={styles.chipRow}>
                 {SLEEP_CHOICES.map((choice) => {
@@ -206,7 +211,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
                   return (
                     <Chip
                       key={String(choice.value)}
-                      label={choice.label}
+                      label={t(choice.labelKey)}
                       active={active}
                       onPress={() => setSleepTimer(active ? null : choice.value)}
                     />
@@ -219,13 +224,13 @@ function Player({ sessionKey }: { sessionKey: string }) {
           {panel === 'ambience' && (
             <View style={[styles.panel, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <AppText variant="caption" tone="secondary">
-                ARKA PLAN SESİ
+                {t('player.ambienceTitle')}
               </AppText>
               <View style={styles.chipRow}>
                 {catalog.ambiences.map((a) => (
                   <Chip
                     key={a.id}
-                    label={a.title.tr}
+                    label={a.title[locale]}
                     active={ambience.activeId === a.id}
                     onPress={() => ambience.select(ambience.activeId === a.id ? null : a.id)}
                   />
@@ -235,8 +240,8 @@ function Player({ sessionKey }: { sessionKey: string }) {
                 <View style={styles.chipRow}>
                   {VOLUME_CHOICES.map((v) => (
                     <Chip
-                      key={v.label}
-                      label={v.label}
+                      key={v.labelKey}
+                      label={t(v.labelKey)}
                       active={ambience.volume === v.value}
                       onPress={() => ambience.setVolume(v.value)}
                     />

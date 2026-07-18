@@ -1,15 +1,19 @@
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText, Screen } from '@/components';
 import { BreathIcon } from '@/components/icons';
 import { catalog } from '@/content/catalog';
 import { cycleSeconds } from '@/features/breathing/engine';
+import { useLocale } from '@/i18n';
 import { radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 
 // Nefes sekmesi — tamamen ücretsiz (alışkanlık kapısı, PLAN.md §6.6).
 export default function BreatheScreen() {
+  const { t } = useTranslation();
+  const locale = useLocale();
   const router = useRouter();
   const { colors } = useTheme();
   const exercises = catalog.sessions.filter((s) => s.type === 'breathing' && s.pattern);
@@ -17,8 +21,8 @@ export default function BreatheScreen() {
   return (
     <Screen scroll>
       <View style={styles.stack}>
-        <AppText variant="display2">Nefes</AppText>
-        <AppText tone="secondary">Bir patern seç; halka nefesinle birlikte açılır.</AppText>
+        <AppText variant="display2">{t('breathing.title')}</AppText>
+        <AppText tone="secondary">{t('breathing.subtitle')}</AppText>
 
         {exercises.map((session) => {
           const p = session.pattern!;
@@ -29,7 +33,7 @@ export default function BreatheScreen() {
             <Pressable
               key={session.id}
               accessibilityRole="button"
-              accessibilityLabel={`${session.title.tr}, ${patternLabel}`}
+              accessibilityLabel={`${session.title[locale]}, ${patternLabel}`}
               onPress={() =>
                 router.push({ pathname: '/breathing/[sessionId]', params: { sessionId: session.id } })
               }
@@ -43,9 +47,9 @@ export default function BreatheScreen() {
                 <BreathIcon color={colors.accent} />
               </View>
               <View style={styles.meta}>
-                <AppText variant="bodyMedium">{session.title.tr}</AppText>
+                <AppText variant="bodyMedium">{session.title[locale]}</AppText>
                 <AppText variant="caption" tone="secondary">
-                  {patternLabel} · döngü {cycleSeconds(p)} sn
+                  {patternLabel} · {t('breathing.cycle', { seconds: cycleSeconds(p) })}
                 </AppText>
               </View>
             </Pressable>

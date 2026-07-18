@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
@@ -7,6 +8,7 @@ import { canAccessSession } from '@/content/access';
 import { catalog } from '@/content/catalog';
 import { useOpenSession } from '@/features/navigation';
 import { durationLabel, normalizeSearch } from '@/i18n/format';
+import { useLocale } from '@/i18n';
 import { categoryColors, fonts, radius, space, type CategoryId } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { usePremium } from '@/stores/premium';
@@ -14,11 +16,11 @@ import { useProgress } from '@/stores/progress';
 
 type DurationFilter = 'all' | 'short' | 'medium' | 'long';
 
-const DURATION_FILTERS: { id: DurationFilter; label: string }[] = [
-  { id: 'all', label: 'Tümü' },
-  { id: 'short', label: '≤5 dk' },
-  { id: 'medium', label: '10 dk' },
-  { id: 'long', label: '15+ dk' },
+const DURATION_FILTERS: { id: DurationFilter; labelKey: string }[] = [
+  { id: 'all', labelKey: 'explore.filterAll' },
+  { id: 'short', labelKey: 'explore.filterShort' },
+  { id: 'medium', labelKey: 'explore.filterMedium' },
+  { id: 'long', labelKey: 'explore.filterLong' },
 ];
 
 function matchesDuration(seconds: number, filter: DurationFilter): boolean {
@@ -30,6 +32,8 @@ function matchesDuration(seconds: number, filter: DurationFilter): boolean {
 }
 
 export default function ExploreScreen() {
+  const { t } = useTranslation();
+  const locale = useLocale();
   const { colors } = useTheme();
   const router = useRouter();
   const openSession = useOpenSession();
@@ -58,14 +62,14 @@ export default function ExploreScreen() {
   return (
     <Screen scroll>
       <View style={styles.stack}>
-        <AppText variant="display2">Keşfet</AppText>
+        <AppText variant="display2">{t('explore.title')}</AppText>
 
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Ara: uyku, odak, şükran…"
+          placeholder={t('explore.searchPlaceholder')}
           placeholderTextColor={colors.textSecondary}
-          accessibilityLabel="Meditasyon ara"
+          accessibilityLabel={t('explore.searchLabel')}
           style={[
             styles.search,
             { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary },
@@ -90,7 +94,7 @@ export default function ExploreScreen() {
                 ]}
               >
                 <AppText variant="caption" style={active ? { color: colors.accent } : undefined}>
-                  {f.label}
+                  {t(f.labelKey)}
                 </AppText>
               </Pressable>
             );
@@ -101,9 +105,9 @@ export default function ExploreScreen() {
           <View style={styles.results}>
             {results.length === 0 ? (
               <View style={styles.empty}>
-                <AppText variant="display3">Sonuç yok</AppText>
+                <AppText variant="display3">{t('explore.noResults')}</AppText>
                 <AppText tone="secondary" variant="secondary">
-                  Farklı bir kelime dene — ya da kategorilere göz at.
+                  {t('explore.noResultsHint')}
                 </AppText>
               </View>
             ) : (
@@ -111,10 +115,10 @@ export default function ExploreScreen() {
                 <SessionCard
                   key={session.id}
                   id={session.id}
-                  title={session.title.tr}
-                  durationLabel={durationLabel(session.durationSec, 'tr')}
+                  title={session.title[locale]}
+                  durationLabel={durationLabel(session.durationSec, locale)}
                   categoryLabel={
-                    catalog.categories.find((c) => c.id === session.categories[0])?.name.tr ?? ''
+                    catalog.categories.find((c) => c.id === session.categories[0])?.name[locale] ?? ''
                   }
                   categoryId={session.categories[0]}
                   locked={!canAccessSession(session, isPremium)}
@@ -125,14 +129,14 @@ export default function ExploreScreen() {
           </View>
         ) : (
           <>
-            <AppText variant="display3">Programlar</AppText>
+            <AppText variant="display3">{t('explore.programs')}</AppText>
             {catalog.programs.map((program) => {
               const progress = programProgress[program.id];
               return (
                 <ProgramCard
                   key={program.id}
-                  title={program.title.tr}
-                  subtitle={`${program.days.length} gün · ${program.description.tr.split('.')[0]}`}
+                  title={program.title[locale]}
+                  subtitle={`${t('explore.daysCount', { count: program.days.length })} · ${program.description[locale].split('.')[0]}`}
                   progress={progress ? progress.completedDays.length / program.days.length : 0}
                   locked={program.access === 'premium' && !isPremium}
                   onPress={() =>
@@ -143,14 +147,14 @@ export default function ExploreScreen() {
             })}
 
             <AppText variant="display3" style={styles.gridTitle}>
-              Kategoriler
+              {t('explore.categories')}
             </AppText>
             <View style={styles.grid}>
               {catalog.categories.map((category) => (
                 <Pressable
                   key={category.id}
                   accessibilityRole="button"
-                  accessibilityLabel={category.name.tr}
+                  accessibilityLabel={category.name[locale]}
                   onPress={() =>
                     router.push({
                       pathname: '/category/[categoryId]',
@@ -166,7 +170,7 @@ export default function ExploreScreen() {
                   <View
                     style={[styles.dot, { backgroundColor: categoryColors[category.id as CategoryId] }]}
                   />
-                  <AppText variant="bodyMedium">{category.name.tr}</AppText>
+                  <AppText variant="bodyMedium">{category.name[locale]}</AppText>
                 </Pressable>
               ))}
             </View>

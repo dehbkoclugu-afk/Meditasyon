@@ -1,4 +1,5 @@
 import { Stack, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -12,11 +13,11 @@ import { useSettings, type Intent } from '@/stores/settings';
 // 4 adım: karşılama → niyet → hatırlatıcı → yumuşak paywall (PLAN.md §6.1).
 // Her adım atlanabilir; "Ücretsiz devam et" daima görünür.
 
-const INTENTS: { id: Intent; label: string }[] = [
-  { id: 'uyku', label: 'Daha iyi uyku' },
-  { id: 'stres', label: 'Stresle başa çıkma' },
-  { id: 'odak', label: 'Odaklanma' },
-  { id: 'merak', label: 'Sadece merak' },
+const INTENTS: { id: Intent; labelKey: string }[] = [
+  { id: 'uyku', labelKey: 'onboarding.intentUyku' },
+  { id: 'stres', labelKey: 'onboarding.intentStres' },
+  { id: 'odak', labelKey: 'onboarding.intentOdak' },
+  { id: 'merak', labelKey: 'onboarding.intentMerak' },
 ];
 
 const REMINDER_TIMES = [
@@ -27,6 +28,7 @@ const REMINDER_TIMES = [
 ];
 
 export default function OnboardingScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { colors } = useTheme();
   const settings = useSettings();
@@ -67,10 +69,10 @@ export default function OnboardingScreen() {
                   {brand.name}
                 </AppText>
                 <AppText tone="secondary" style={styles.centerText}>
-                  Türkçe yönlendirmeli meditasyon. Hazır olduğunda başla.
+                  {t('onboarding.welcomeBody')}
                 </AppText>
               </View>
-              <Button label="Başlayalım" onPress={() => setStep(1)} />
+              <Button label={t('onboarding.welcomeCta')} onPress={() => setStep(1)} />
             </View>
           )}
 
@@ -78,10 +80,10 @@ export default function OnboardingScreen() {
             <View style={styles.center}>
               <View style={styles.copy}>
                 <AppText variant="display2" style={styles.centerText}>
-                  Seni buraya ne getirdi?
+                  {t('onboarding.intentTitle')}
                 </AppText>
                 <AppText variant="secondary" tone="secondary" style={styles.centerText}>
-                  Birden fazla seçebilirsin — önerileri buna göre ayarlarız.
+                  {t('onboarding.intentBody')}
                 </AppText>
               </View>
               <View style={styles.options}>
@@ -105,12 +107,12 @@ export default function OnboardingScreen() {
                         },
                       ]}
                     >
-                      <AppText variant="bodyMedium">{intent.label}</AppText>
+                      <AppText variant="bodyMedium">{t(intent.labelKey)}</AppText>
                     </Pressable>
                   );
                 })}
               </View>
-              <Button label="Devam" onPress={() => setStep(2)} />
+              <Button label={t('common.continue')} onPress={() => setStep(2)} />
             </View>
           )}
 
@@ -118,10 +120,10 @@ export default function OnboardingScreen() {
             <View style={styles.center}>
               <View style={styles.copy}>
                 <AppText variant="display2" style={styles.centerText}>
-                  Günlük nazik bir hatırlatma?
+                  {t('onboarding.reminderTitle')}
                 </AppText>
                 <AppText variant="secondary" tone="secondary" style={styles.centerText}>
-                  Günde en fazla bir bildirim. İstediğin an kapatabilirsin.
+                  {t('onboarding.reminderBody')}
                 </AppText>
               </View>
               <View style={styles.chipRow}>
@@ -150,7 +152,7 @@ export default function OnboardingScreen() {
               </View>
               <View style={styles.actions}>
                 <Button
-                  label={reminderChoice !== null ? 'Hatırlatıcıyı kur' : 'Şimdilik geç'}
+                  label={reminderChoice !== null ? t('onboarding.reminderSet') : t('onboarding.reminderSkip')}
                   onPress={confirmReminder}
                 />
               </View>
@@ -161,15 +163,15 @@ export default function OnboardingScreen() {
             <View style={styles.center}>
               <View style={styles.copy}>
                 <AppText variant="display2" style={styles.centerText}>
-                  Hazırsın
+                  {t('onboarding.readyTitle')}
                 </AppText>
                 <AppText tone="secondary" style={styles.centerText}>
-                  Başlangıç programı ücretsiz. Tüm kütüphane için Premium her zaman burada.
+                  {t('onboarding.readyBody')}
                 </AppText>
               </View>
               <View style={styles.actions}>
-                <Button label="Premium'u incele" onPress={() => finish(true)} />
-                <Button label="Ücretsiz devam et" variant="ghost" onPress={() => finish(false)} />
+                <Button label={t('onboarding.seePremium')} onPress={() => finish(true)} />
+                <Button label={t('paywall.continueFree')} variant="ghost" onPress={() => finish(false)} />
               </View>
             </View>
           )}

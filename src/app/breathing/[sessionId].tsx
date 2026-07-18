@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
@@ -14,7 +15,6 @@ import { AppText, Button, Screen } from '@/components';
 import { ChevronDownIcon } from '@/components/icons';
 import { sessionsById } from '@/content/catalog';
 import {
-  PHASE_LABELS,
   cyclesForDuration,
   phaseAt,
   totalSeconds,
@@ -22,25 +22,27 @@ import {
 } from '@/features/breathing/engine';
 import { motion, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
+import { useLocale } from '@/i18n';
 import { useSettings } from '@/stores/settings';
 import { useStats } from '@/stores/stats';
 
 const DURATIONS = [
-  { label: '1 dk', seconds: 60 },
-  { label: '3 dk', seconds: 180 },
-  { label: '5 dk', seconds: 300 },
+  { labelKey: 'breathing.min1', seconds: 60 },
+  { labelKey: 'breathing.min3', seconds: 180 },
+  { labelKey: 'breathing.min5', seconds: 300 },
 ];
 
 const EASING = Easing.bezier(...motion.easing);
 
 export default function BreathingScreen() {
+  const { t } = useTranslation();
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const session = sessionId ? sessionsById.get(sessionId) : undefined;
 
   if (!session?.pattern) {
     return (
       <Screen>
-        <AppText variant="display2">Egzersiz bulunamadı</AppText>
+        <AppText variant="display2">{t('breathing.notFound')}</AppText>
       </Screen>
     );
   }
@@ -48,6 +50,8 @@ export default function BreathingScreen() {
 }
 
 function Breathing({ sessionKey }: { sessionKey: string }) {
+  const { t } = useTranslation();
+  const locale = useLocale();
   const session = sessionsById.get(sessionKey)!;
   const pattern = session.pattern!;
   const router = useRouter();
@@ -110,7 +114,7 @@ function Breathing({ sessionKey }: { sessionKey: string }) {
         <View style={styles.root}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Kapat"
+            accessibilityLabel={t('common.close')}
             onPress={() => router.back()}
             style={styles.close}
             hitSlop={12}
@@ -128,28 +132,28 @@ function Breathing({ sessionKey }: { sessionKey: string }) {
                 ]}
               />
               <AppText variant="display2" style={styles.phaseText}>
-                {done ? 'Bitti' : running ? PHASE_LABELS[state.phase] : session.title.tr}
+                {done ? t('breathing.done') : running ? t(`breathing.${state.phase}`) : session.title[locale]}
               </AppText>
             </View>
 
             {done ? (
               <View style={styles.copy}>
                 <AppText tone="secondary" style={styles.centerText}>
-                  Güzel. Nefesin hep yanında.
+                  {t('breathing.doneBody')}
                 </AppText>
-                <Button label="Kapat" onPress={() => router.back()} />
+                <Button label={t('common.close')} onPress={() => router.back()} />
               </View>
             ) : running ? (
               <View style={styles.copy}>
                 <AppText variant="secondary" tone="secondary">
-                  {remainingCycles} döngü kaldı
+                  {t('breathing.cyclesLeft', { count: remainingCycles })}
                 </AppText>
-                <Button label="Bitir" variant="ghost" onPress={() => router.back()} />
+                <Button label={t('breathing.finish')} variant="ghost" onPress={() => router.back()} />
               </View>
             ) : (
               <View style={styles.copy}>
                 <AppText tone="secondary" style={styles.centerText}>
-                  {session.description.tr}
+                  {session.description[locale]}
                 </AppText>
                 <View style={styles.chipRow}>
                   {DURATIONS.map((d) => {
@@ -169,14 +173,14 @@ function Breathing({ sessionKey }: { sessionKey: string }) {
                         ]}
                       >
                         <AppText variant="caption" style={active ? { color: colors.accent } : undefined}>
-                          {d.label}
+                          {t(d.labelKey)}
                         </AppText>
                       </Pressable>
                     );
                   })}
                 </View>
                 <Button
-                  label="Başla"
+                  label={t('common.start')}
                   onPress={() => {
                     setElapsed(0);
                     recorded.current = false;

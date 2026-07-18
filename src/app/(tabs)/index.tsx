@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText, CoverArt, LockBadge, Screen } from '@/components';
@@ -6,20 +7,16 @@ import { canAccessSession } from '@/content/access';
 import { catalog } from '@/content/catalog';
 import { recommendForToday } from '@/features/today/recommendation';
 import { useOpenSession } from '@/features/navigation';
-import { dayPartForHour, durationLabel } from '@/i18n/format';
+import { dayPartForHour, durationLabel, upperFor } from '@/i18n/format';
+import { useLocale } from '@/i18n';
 import { radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { usePremium } from '@/stores/premium';
 import { useProgress } from '@/stores/progress';
 
-const GREETING: Record<ReturnType<typeof dayPartForHour>, string> = {
-  sabah: 'Günaydın',
-  gunduz: 'İyi günler',
-  aksam: 'İyi akşamlar',
-  gece: 'İyi geceler',
-};
-
 export default function TodayScreen() {
+  const { t } = useTranslation();
+  const locale = useLocale();
   const { colors } = useTheme();
   const router = useRouter();
   const openSession = useOpenSession();
@@ -35,20 +32,20 @@ export default function TodayScreen() {
 
   const heroLabel =
     rec.kind === 'program-day'
-      ? `${rec.program.title.tr} · Gün ${rec.dayIndex + 1}`
+      ? t('today.heroProgramDay', { program: rec.program.title[locale], day: rec.dayIndex + 1 })
       : rec.kind === 'program-start'
-        ? 'Buradan başla'
-        : 'Bugünün önerisi';
+        ? t('today.heroStart')
+        : t('today.heroToday');
 
   return (
     <Screen scroll>
       <View style={styles.stack}>
-        <AppText variant="display1">{GREETING[dayPartForHour(hour)]}</AppText>
+        <AppText variant="display1">{t(`greeting.${dayPartForHour(hour)}`)}</AppText>
 
         {/* Hero: günün önerisi — ekranın tek birincil eylemi */}
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`${heroLabel}: ${rec.session.title.tr}, ${durationLabel(rec.session.durationSec, 'tr')}`}
+          accessibilityLabel={`${heroLabel}: ${rec.session.title[locale]}, ${durationLabel(rec.session.durationSec, locale)}`}
           onPress={() => openSession(rec.session)}
           style={({ pressed }) => [
             styles.hero,
@@ -59,14 +56,14 @@ export default function TodayScreen() {
           <CoverArt seed={rec.session.id} categoryId={rec.session.categories[0]} height={148} />
           <View style={styles.heroMeta}>
             <AppText variant="caption" tone="accent">
-              {heroLabel.toLocaleUpperCase('tr')}
+              {upperFor(heroLabel, locale)}
             </AppText>
-            <AppText variant="display2">{rec.session.title.tr}</AppText>
+            <AppText variant="display2">{rec.session.title[locale]}</AppText>
             <AppText variant="secondary" tone="secondary" numberOfLines={2}>
-              {rec.session.description.tr}
+              {rec.session.description[locale]}
             </AppText>
             <AppText variant="secondary" tone="secondary">
-              {durationLabel(rec.session.durationSec, 'tr')}
+              {durationLabel(rec.session.durationSec, locale)}
             </AppText>
           </View>
         </Pressable>
@@ -77,7 +74,7 @@ export default function TodayScreen() {
             <Pressable
               key={category.id}
               accessibilityRole="button"
-              accessibilityLabel={category.name.tr}
+              accessibilityLabel={category.name[locale]}
               onPress={() =>
                 router.push({ pathname: '/category/[categoryId]', params: { categoryId: category.id } })
               }
@@ -87,21 +84,21 @@ export default function TodayScreen() {
                 pressed && styles.pressed,
               ]}
             >
-              <AppText variant="secondary">{category.name.tr}</AppText>
+              <AppText variant="secondary">{category.name[locale]}</AppText>
             </Pressable>
           ))}
         </ScrollView>
 
         {/* Ücretsiz seçkiler */}
         <View style={styles.sectionHeader}>
-          <AppText variant="display3">Ücretsiz seçkiler</AppText>
+          <AppText variant="display3">{t('today.freePicks')}</AppText>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.shelf}>
           {freePicks.map((session) => (
             <Pressable
               key={session.id}
               accessibilityRole="button"
-              accessibilityLabel={`${session.title.tr}, ${durationLabel(session.durationSec, 'tr')}`}
+              accessibilityLabel={`${session.title[locale]}, ${durationLabel(session.durationSec, locale)}`}
               onPress={() => openSession(session)}
               style={({ pressed }) => [
                 styles.shelfCard,
@@ -112,11 +109,11 @@ export default function TodayScreen() {
               <CoverArt seed={session.id} categoryId={session.categories[0]} height={80} />
               <View style={styles.shelfMeta}>
                 <AppText variant="bodyMedium" numberOfLines={2}>
-                  {session.title.tr}
+                  {session.title[locale]}
                 </AppText>
                 <View style={styles.shelfRow}>
                   <AppText variant="caption" tone="secondary">
-                    {durationLabel(session.durationSec, 'tr')}
+                    {durationLabel(session.durationSec, locale)}
                   </AppText>
                   {!canAccessSession(session, isPremium) && <LockBadge />}
                 </View>

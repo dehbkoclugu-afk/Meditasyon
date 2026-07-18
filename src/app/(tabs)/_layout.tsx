@@ -1,4 +1,5 @@
 import { Redirect, Tabs } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 import { BreathIcon, CompassIcon, SeedIcon, SunHorizonIcon } from '@/components/icons';
 import { fonts } from '@/design/tokens';
@@ -6,6 +7,7 @@ import { useTheme } from '@/design/theme';
 import { useSettings } from '@/stores/settings';
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const onboardingDone = useSettings((s) => s.onboardingDone);
   if (!onboardingDone) {
@@ -28,28 +30,28 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Bugün',
+          title: t('tabs.today'),
           tabBarIcon: ({ color, size }) => <SunHorizonIcon color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Keşfet',
+          title: t('tabs.explore'),
           tabBarIcon: ({ color, size }) => <CompassIcon color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="breathe"
         options={{
-          title: 'Nefes',
+          title: t('tabs.breathe'),
           tabBarIcon: ({ color, size }) => <BreathIcon color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Sen',
+          title: t('tabs.profile'),
           tabBarIcon: ({ color, size }) => <SeedIcon color={color} size={size} />,
         }}
       />

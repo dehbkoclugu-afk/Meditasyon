@@ -7,6 +7,11 @@ export function lowerTr(text: string): string {
   return text.toLocaleLowerCase('tr');
 }
 
+/** Aktif dile göre büyük harf: TR'de İ/ı kuralı, EN'de standart. */
+export function upperFor(text: string, locale: 'tr' | 'en'): string {
+  return text.toLocaleUpperCase(locale === 'tr' ? 'tr' : 'en-US');
+}
+
 /** Saniyeyi "12 dk" / "12 min" biçimine çevirir; 1 dk altını yukarı yuvarlar. */
 export function durationLabel(seconds: number, locale: 'tr' | 'en'): string {
   const minutes = Math.max(1, Math.round(seconds / 60));
