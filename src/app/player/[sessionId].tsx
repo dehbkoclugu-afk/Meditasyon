@@ -44,7 +44,7 @@ export default function PlayerScreen() {
             </AppText>
           </View>
           <AppText variant="secondary" tone="secondary" style={styles.note}>
-            Ses motoru M4'te geliyor — şimdilik önizleme.
+            {"Ses motoru M4'te geliyor — şimdilik önizleme."}
           </AppText>
           <Button label="Kapat" variant="ghost" onPress={() => router.back()} />
         </View>

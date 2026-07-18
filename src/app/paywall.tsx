@@ -36,7 +36,7 @@ export default function PaywallScreen() {
             ))}
           </View>
           <View style={[styles.planBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <AppText variant="bodyMedium">Planlar M5'te RevenueCat'ten gelecek</AppText>
+            <AppText variant="bodyMedium">{"Planlar M5'te RevenueCat'ten gelecek"}</AppText>
             <AppText variant="caption" tone="secondary">
               Yıllık (7 gün deneme) · Aylık · Ömür boyu
             </AppText>
