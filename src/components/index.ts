@@ -1,6 +1,7 @@
 export { AppText } from './AppText';
 export { BreathRing, breathAnimationMode } from './BreathRing';
 export { Button } from './Button';
+export { CoverArt } from './CoverArt';
 export { LockBadge } from './LockBadge';
 export { ProgramCard } from './ProgramCard';
 export { Screen } from './Screen';

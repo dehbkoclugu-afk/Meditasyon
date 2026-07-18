@@ -1,11 +1,13 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from './AppText';
+import { CoverArt } from './CoverArt';
 import { LockBadge } from './LockBadge';
-import { categoryColors, radius, space, type CategoryId } from '@/design/tokens';
+import { radius, space, type CategoryId } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 
 type Props = {
+  id: string; // kapak üreteci tohumu — aynı seans hep aynı kapağı alır
   title: string;
   durationLabel: string; // "12 dk" — biçimleme çağıran tarafta (i18n)
   categoryLabel: string;
@@ -14,9 +16,8 @@ type Props = {
   onPress: () => void;
 };
 
-export function SessionCard({ title, durationLabel, categoryLabel, categoryId, locked, onPress }: Props) {
+export function SessionCard({ id, title, durationLabel, categoryLabel, categoryId, locked, onPress }: Props) {
   const { colors } = useTheme();
-  const catColor = categoryColors[categoryId];
 
   return (
     <Pressable
@@ -29,10 +30,7 @@ export function SessionCard({ title, durationLabel, categoryLabel, categoryId, l
         pressed && styles.pressed,
       ]}
     >
-      {/* Kapak: kategori renginden sakin bir alan — SVG blob üreteci M2'de bunu dolduracak */}
-      <View style={[styles.art, { backgroundColor: `${catColor}33` }]}>
-        <View style={[styles.artCore, { backgroundColor: `${catColor}66` }]} />
-      </View>
+      <CoverArt seed={id} categoryId={categoryId} height={96} />
       <View style={styles.meta}>
         <AppText variant="display3" numberOfLines={2}>
           {title}
@@ -55,16 +53,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   pressed: { opacity: 0.9 },
-  art: {
-    height: 96,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  artCore: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-  },
   meta: {
     padding: space.md,
     gap: space.xs,

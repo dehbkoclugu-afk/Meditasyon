@@ -43,6 +43,7 @@ export default function GalleryScreen() {
 
         <Section title="Kartlar">
           <SessionCard
+            id="uykuya-yumusak-gecis"
             title="Uykuya Yumuşak Geçiş"
             durationLabel="15 dk"
             categoryLabel="Uyku"
@@ -51,7 +52,8 @@ export default function GalleryScreen() {
             onPress={noop}
           />
           <SessionCard
-            title="Sabah Niyeti"
+            id="gune-niyetle-basla"
+            title="Güne Niyetle Başla"
             durationLabel="8 dk"
             categoryLabel="Sabah"
             categoryId="sabah"
