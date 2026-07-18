@@ -38,7 +38,6 @@ if (missing.length > 0) {
 }
 
 const out = `// OTOMATİK ÜRETİLDİ — elle düzenlemeyin. Yeniden üretmek için: npm run content:map
-/* eslint-disable @typescript-eslint/no-require-imports */
 
 export const audioAssets: Record<string, number> = {
 ${lines.join('\n')}

@@ -1,5 +1,4 @@
 // OTOMATİK ÜRETİLDİ — elle düzenlemeyin. Yeniden üretmek için: npm run content:map
-/* eslint-disable @typescript-eslint/no-require-imports */
 
 export const audioAssets: Record<string, number> = {
   'baslangic-gun-1': require('../../content/audio/baslangic-gun-1.wav'),
