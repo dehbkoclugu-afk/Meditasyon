@@ -1,9 +1,11 @@
 import Constants from 'expo-constants';
 import { Stack } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Linking, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
 
 import { AppText, Screen } from '@/components';
+import { exportBackup, importBackup } from '@/features/backup/backup';
 import { purchasesGateway } from '@/features/purchases/gateway';
 import {
   cancelReminders,
@@ -37,6 +39,12 @@ export default function SettingsScreen() {
   const settings = useSettings();
   const setPremium = usePremium((s) => s.setPremium);
   const isPremium = usePremium((s) => s.isPremium);
+  const [importResult, setImportResult] = useState<'ok' | 'invalid' | null>(null);
+
+  async function handleImport() {
+    const result = await importBackup();
+    if (result !== 'cancelled') setImportResult(result === 'ok' ? 'ok' : 'invalid');
+  }
 
   async function toggleReminder(enabled: boolean) {
     if (enabled) {
@@ -159,6 +167,16 @@ export default function SettingsScreen() {
             <Row label={isPremium ? t('settings.membershipActive') : t('settings.membershipFree')} />
             {isPremium && <LinkRow label={t('settings.manageSubscription')} onPress={manageSubscription} />}
             <LinkRow label={t('settings.restore')} onPress={restore} />
+          </Section>
+
+          <Section title={t('settings.data')}>
+            <LinkRow label={t('settings.exportData')} onPress={() => exportBackup()} />
+            <LinkRow label={t('settings.importData')} onPress={handleImport} />
+            {importResult && (
+              <Row
+                label={importResult === 'ok' ? t('settings.importOk') : t('settings.importInvalid')}
+              />
+            )}
           </Section>
 
           <Section title={t('settings.about')}>

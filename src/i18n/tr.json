@@ -182,6 +182,11 @@
     "restore": "Satın alımları geri yükle",
     "about": "HAKKINDA",
     "version": "Sürüm {{version}}",
-    "bell": "Bitiş çanı"
+    "bell": "Bitiş çanı",
+    "data": "VERİLER",
+    "exportData": "Verileri dışa aktar",
+    "importData": "Yedekten geri yükle",
+    "importOk": "Yedek geri yüklendi.",
+    "importInvalid": "Geçersiz yedek dosyası."
   }
 }

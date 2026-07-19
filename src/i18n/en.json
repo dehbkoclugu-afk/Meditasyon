@@ -182,6 +182,11 @@
     "restore": "Restore purchases",
     "about": "ABOUT",
     "version": "Version {{version}}",
-    "bell": "Ending bell"
+    "bell": "Ending bell",
+    "data": "DATA",
+    "exportData": "Export data",
+    "importData": "Restore from backup",
+    "importOk": "Backup restored.",
+    "importInvalid": "Invalid backup file."
   }
 }
