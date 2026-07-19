@@ -1,6 +1,8 @@
 import { Redirect, Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { View } from 'react-native';
 
+import { MiniPlayer } from '@/components/MiniPlayer';
 import { BreathIcon, CompassIcon, SeedIcon, SunHorizonIcon } from '@/components/icons';
 import { fonts } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
@@ -14,6 +16,7 @@ export default function TabsLayout() {
     return <Redirect href="/onboarding" />;
   }
   return (
+    <View style={{ flex: 1 }}>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -56,5 +59,7 @@ export default function TabsLayout() {
         }}
       />
     </Tabs>
+      <MiniPlayer />
+    </View>
   );
 }

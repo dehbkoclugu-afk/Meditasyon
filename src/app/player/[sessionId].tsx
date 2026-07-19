@@ -17,10 +17,8 @@ import {
   WavesIcon,
 } from '@/components/icons';
 import { catalog, programsById, sessionsById } from '@/content/catalog';
-import { useAmbience, type AmbienceVolume } from '@/features/player/useAmbience';
-import { findProgramDay } from '@/features/player/logic';
-import { useSessionPlayer } from '@/features/player/useSessionPlayer';
-import type { SleepTimerChoice } from '@/features/player/logic';
+import { playbackController, usePlayback } from '@/features/player/controller';
+import { findProgramDay, type SleepTimerChoice } from '@/features/player/logic';
 import { timeLabel, upperFor } from '@/i18n/format';
 import { useLocale } from '@/i18n';
 import { motion, radius, space } from '@/design/tokens';
@@ -37,7 +35,7 @@ const SLEEP_CHOICES: { value: SleepTimerChoice; labelKey: string }[] = [
   { value: 'end', labelKey: 'player.sessionEnd' },
 ];
 
-const VOLUME_CHOICES: { value: AmbienceVolume; labelKey: string }[] = [
+const VOLUME_CHOICES: { value: number; labelKey: string }[] = [
   { value: 0.35, labelKey: 'player.volLow' },
   { value: 0.7, labelKey: 'player.volMid' },
   { value: 1, labelKey: 'player.volHigh' },
@@ -59,14 +57,18 @@ export default function PlayerScreen() {
 }
 
 // Ayrı bileşen: hook'lar session garanti edildikten sonra koşulsuz çalışır.
+// Oynatma sahibi controller — ekran kapansa da ses sürer (mini-player devralır).
 function Player({ sessionKey }: { sessionKey: string }) {
   const { t } = useTranslation();
   const locale = useLocale();
   const session = sessionsById.get(sessionKey)!;
   const router = useRouter();
   const { colors } = useTheme();
-  const { state, toggle, seekBy, setSleepTimer } = useSessionPlayer(session);
-  const ambience = useAmbience();
+  const playback = usePlayback();
+
+  useEffect(() => {
+    playbackController.start(sessionKey);
+  }, [sessionKey]);
 
   const favorites = useProgress((s) => s.favorites);
   const toggleFavorite = useProgress((s) => s.toggleFavorite);
@@ -95,30 +97,42 @@ function Player({ sessionKey }: { sessionKey: string }) {
 
   useEffect(() => {
     if (dimTimer.current) clearTimeout(dimTimer.current);
-    if (state.isPlaying && panel === 'none' && !dimmed) {
+    if (playback.isPlaying && panel === 'none' && !dimmed) {
       dimTimer.current = setTimeout(() => setDimmed(true), 10000);
     }
     return () => {
       if (dimTimer.current) clearTimeout(dimTimer.current);
     };
-  }, [state.isPlaying, panel, dimmed]);
+  }, [playback.isPlaying, panel, dimmed]);
 
   const uiStyle = useAnimatedStyle(() => ({ opacity: uiOpacity.value }));
 
   function onArtPress() {
     const now = Date.now();
-    if (now - lastTap.current < 300) toggle(); // çift dokunuş: oynat/duraklat
+    if (now - lastTap.current < 300) playbackController.toggle(); // çift dokunuş
     lastTap.current = now;
     poke();
   }
 
   const categoryName =
     catalog.categories.find((c) => c.id === session.categories[0])?.name[locale] ?? '';
-  const progress = state.durationSec > 0 ? state.positionSec / state.durationSec : 0;
-  const remaining = Math.max(0, state.durationSec - state.positionSec);
+  const isCurrent = playback.sessionId === session.id;
+  const progress =
+    isCurrent && playback.durationSec > 0 ? playback.positionSec / playback.durationSec : 0;
+  const remaining = isCurrent
+    ? Math.max(0, playback.durationSec - playback.positionSec)
+    : session.durationSec;
 
-  if (state.finished) {
-    return <FinishView sessionKey={session.id} onClose={() => router.back()} />;
+  if (isCurrent && playback.finished) {
+    return (
+      <FinishView
+        sessionKey={session.id}
+        onClose={() => {
+          playbackController.acknowledgeFinished();
+          router.back();
+        }}
+      />
+    );
   }
 
   return (
@@ -138,151 +152,177 @@ function Player({ sessionKey }: { sessionKey: string }) {
             </Pressable>
           </Animated.View>
 
-          <Pressable accessibilityRole="button" accessibilityLabel={state.isPlaying ? t('player.pause') : t('player.play')} onPress={onArtPress} style={styles.artBlock}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={playback.isPlaying ? t('player.pause') : t('player.play')}
+            onPress={onArtPress}
+            style={styles.artBlock}
+          >
             <PlayRing progress={progress} size={264}>
               <View style={styles.artClip}>
-                <CoverArt seed={session.id} categoryId={session.categories[0]} height={232} kind={session.type} />
+                <CoverArt
+                  seed={session.id}
+                  categoryId={session.categories[0]}
+                  height={232}
+                  kind={session.type}
+                />
               </View>
             </PlayRing>
           </Pressable>
 
           <Animated.View style={[styles.dimGroup, uiStyle]}>
-          <View style={styles.meta}>
-            <AppText variant="caption" tone="secondary">
-              {upperFor(categoryName, locale)}
-            </AppText>
-            <AppText variant="display2" style={styles.centerText} numberOfLines={2}>
-              {session.title[locale]}
-            </AppText>
-            <AppText variant="secondary" tone="secondary" style={{ fontVariant: ['tabular-nums'] }}>
-              {timeLabel(state.positionSec)} · {t('player.remaining', { time: timeLabel(remaining) })}
-            </AppText>
-          </View>
-
-          <View style={styles.controls}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('player.back15')}
-              onPress={() => seekBy(-15)}
-              hitSlop={8}
-              style={styles.sideControl}
-            >
-              <Back15Icon color={colors.textPrimary} size={30} />
-            </Pressable>
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={state.isPlaying ? t('player.pause') : t('player.play')}
-              onPress={toggle}
-              style={({ pressed }) => [
-                styles.playButton,
-                { backgroundColor: colors.accent },
-                pressed && styles.pressed,
-              ]}
-            >
-              {state.isPlaying ? (
-                <PauseIcon color={colors.bg} size={30} />
-              ) : (
-                <PlayIcon color={colors.bg} size={30} />
-              )}
-            </Pressable>
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('player.fwd15')}
-              onPress={() => seekBy(15)}
-              hitSlop={8}
-              style={styles.sideControl}
-            >
-              <Fwd15Icon color={colors.textPrimary} size={30} />
-            </Pressable>
-          </View>
-
-          <View style={styles.bottomRow}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={isFavorite ? t('player.favRemove') : t('player.favAdd')}
-              onPress={() => toggleFavorite(session.id)}
-              hitSlop={8}
-              style={styles.bottomButton}
-            >
-              <HeartIcon color={isFavorite ? colors.accent : colors.textSecondary} filled={isFavorite} />
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('player.sleepTimer')}
-              onPress={() => setPanel(panel === 'sleep' ? 'none' : 'sleep')}
-              hitSlop={8}
-              style={styles.bottomButton}
-            >
-              <MoonIcon color={state.sleepTimer !== null ? colors.accent : colors.textSecondary} />
-              {state.sleepRemainingSec !== null && (
-                <AppText variant="caption" tone="accent" style={{ fontVariant: ['tabular-nums'] }}>
-                  {timeLabel(state.sleepRemainingSec)}
-                </AppText>
-              )}
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('player.ambience')}
-              onPress={() => setPanel(panel === 'ambience' ? 'none' : 'ambience')}
-              hitSlop={8}
-              style={styles.bottomButton}
-            >
-              <WavesIcon color={ambience.activeId ? colors.accent : colors.textSecondary} />
-            </Pressable>
-          </View>
-
-          {panel === 'sleep' && (
-            <View style={[styles.panel, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={styles.meta}>
               <AppText variant="caption" tone="secondary">
-                {t('player.sleepTitle')}
+                {upperFor(categoryName, locale)}
               </AppText>
-              <View style={styles.chipRow}>
-                {SLEEP_CHOICES.map((choice) => {
-                  const active = state.sleepTimer === choice.value;
-                  return (
-                    <Chip
-                      key={String(choice.value)}
-                      label={t(choice.labelKey)}
-                      active={active}
-                      onPress={() => setSleepTimer(active ? null : choice.value)}
-                    />
-                  );
-                })}
-              </View>
+              <AppText variant="display2" style={styles.centerText} numberOfLines={2}>
+                {session.title[locale]}
+              </AppText>
+              <AppText variant="secondary" tone="secondary" style={{ fontVariant: ['tabular-nums'] }}>
+                {timeLabel(isCurrent ? playback.positionSec : 0)} ·{' '}
+                {t('player.remaining', { time: timeLabel(remaining) })}
+              </AppText>
             </View>
-          )}
 
-          {panel === 'ambience' && (
-            <View style={[styles.panel, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <AppText variant="caption" tone="secondary">
-                {t('player.ambienceTitle')}
-              </AppText>
-              <View style={styles.chipRow}>
-                {catalog.ambiences.map((a) => (
-                  <Chip
-                    key={a.id}
-                    label={a.title[locale]}
-                    active={ambience.activeId === a.id}
-                    onPress={() => ambience.select(ambience.activeId === a.id ? null : a.id)}
-                  />
-                ))}
-              </View>
-              {ambience.activeId && (
+            <View style={styles.controls}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('player.back15')}
+                onPress={() => playbackController.seekBy(-15)}
+                hitSlop={8}
+                style={styles.sideControl}
+              >
+                <Back15Icon color={colors.textPrimary} size={30} />
+              </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={playback.isPlaying ? t('player.pause') : t('player.play')}
+                onPress={() => playbackController.toggle()}
+                style={({ pressed }) => [
+                  styles.playButton,
+                  { backgroundColor: colors.accent },
+                  pressed && styles.pressed,
+                ]}
+              >
+                {playback.isPlaying ? (
+                  <PauseIcon color={colors.bg} size={30} />
+                ) : (
+                  <PlayIcon color={colors.bg} size={30} />
+                )}
+              </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('player.fwd15')}
+                onPress={() => playbackController.seekBy(15)}
+                hitSlop={8}
+                style={styles.sideControl}
+              >
+                <Fwd15Icon color={colors.textPrimary} size={30} />
+              </Pressable>
+            </View>
+
+            <View style={styles.bottomRow}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={isFavorite ? t('player.favRemove') : t('player.favAdd')}
+                onPress={() => toggleFavorite(session.id)}
+                hitSlop={8}
+                style={styles.bottomButton}
+              >
+                <HeartIcon
+                  color={isFavorite ? colors.accent : colors.textSecondary}
+                  filled={isFavorite}
+                />
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('player.sleepTimer')}
+                onPress={() => setPanel(panel === 'sleep' ? 'none' : 'sleep')}
+                hitSlop={8}
+                style={styles.bottomButton}
+              >
+                <MoonIcon
+                  color={playback.sleepTimer !== null ? colors.accent : colors.textSecondary}
+                />
+                {playback.sleepRemainingSec !== null && (
+                  <AppText variant="caption" tone="accent" style={{ fontVariant: ['tabular-nums'] }}>
+                    {timeLabel(playback.sleepRemainingSec)}
+                  </AppText>
+                )}
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('player.ambience')}
+                onPress={() => setPanel(panel === 'ambience' ? 'none' : 'ambience')}
+                hitSlop={8}
+                style={styles.bottomButton}
+              >
+                <WavesIcon color={playback.ambienceId ? colors.accent : colors.textSecondary} />
+              </Pressable>
+            </View>
+
+            {panel === 'sleep' && (
+              <View
+                style={[styles.panel, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              >
+                <AppText variant="caption" tone="secondary">
+                  {t('player.sleepTitle')}
+                </AppText>
                 <View style={styles.chipRow}>
-                  {VOLUME_CHOICES.map((v) => (
+                  {SLEEP_CHOICES.map((choice) => {
+                    const active = playback.sleepTimer === choice.value;
+                    return (
+                      <Chip
+                        key={String(choice.value)}
+                        label={t(choice.labelKey)}
+                        active={active}
+                        onPress={() =>
+                          playbackController.setSleepTimer(active ? null : choice.value)
+                        }
+                      />
+                    );
+                  })}
+                </View>
+              </View>
+            )}
+
+            {panel === 'ambience' && (
+              <View
+                style={[styles.panel, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              >
+                <AppText variant="caption" tone="secondary">
+                  {t('player.ambienceTitle')}
+                </AppText>
+                <View style={styles.chipRow}>
+                  {catalog.ambiences.map((a) => (
                     <Chip
-                      key={v.labelKey}
-                      label={t(v.labelKey)}
-                      active={ambience.volume === v.value}
-                      onPress={() => ambience.setVolume(v.value)}
+                      key={a.id}
+                      label={a.title[locale]}
+                      active={playback.ambienceId === a.id}
+                      onPress={() =>
+                        playbackController.selectAmbience(
+                          playback.ambienceId === a.id ? null : a.id,
+                        )
+                      }
                     />
                   ))}
                 </View>
-              )}
-            </View>
-          )}
+                {playback.ambienceId && (
+                  <View style={styles.chipRow}>
+                    {VOLUME_CHOICES.map((v) => (
+                      <Chip
+                        key={v.labelKey}
+                        label={t(v.labelKey)}
+                        active={playback.ambienceVolume === v.value}
+                        onPress={() => playbackController.setAmbienceVolume(v.value)}
+                      />
+                    ))}
+                  </View>
+                )}
+              </View>
+            )}
           </Animated.View>
         </View>
       </Screen>
@@ -299,8 +339,7 @@ function FinishView({ sessionKey, onClose }: { sessionKey: string; onClose: () =
   const day = findProgramDay(catalog, sessionKey);
   const program = day ? programsById.get(day.program.id) : undefined;
   const programDone =
-    program != null &&
-    (programs[program.id]?.completedDays.length ?? 0) >= program.days.length;
+    program != null && (programs[program.id]?.completedDays.length ?? 0) >= program.days.length;
 
   // Doğru anda değerlendirme istemi: 3. tamamlanan seans, bir kez.
   useEffect(() => {
@@ -364,7 +403,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg },
   dimGroup: { alignItems: 'center', gap: space.lg, alignSelf: 'stretch' },
   pressed: { opacity: 0.85 },
-  close: { position: 'absolute', top: 0, left: 0, minWidth: 44, minHeight: 44, justifyContent: 'center' },
+  close: { minWidth: 44, minHeight: 44, justifyContent: 'center' },
   artBlock: { alignItems: 'center' },
   artClip: { width: 232, height: 232, borderRadius: radius.playerArt * 4, overflow: 'hidden' },
   meta: { alignItems: 'center', gap: space.xs, paddingHorizontal: space.lg },
