@@ -22,6 +22,8 @@ export type PlayerState = {
   durationSec: number;
   finished: boolean;
   sleepTimer: SleepTimerChoice;
+  /** Aktif uyku zamanlayıcısında kalan saniye; kapalıysa null. */
+  sleepRemainingSec: number | null;
 };
 
 export function useSessionPlayer(session: Session) {
@@ -32,6 +34,7 @@ export function useSessionPlayer(session: Session) {
     durationSec: session.durationSec,
     finished: false,
     sleepTimer: null,
+    sleepRemainingSec: null,
   });
 
   const savePosition = useProgress((s) => s.savePosition);
@@ -85,8 +88,10 @@ export function useSessionPlayer(session: Session) {
         };
 
         // Uyku zamanlayıcısı: son 10 sn'de fade, sonra duraklat
+        let sleepRemainingSec: number | null = null;
         if (sleepDeadline.current !== null) {
           const remainingMs = sleepDeadline.current - Date.now();
+          sleepRemainingSec = Math.max(0, Math.ceil(remainingMs / 1000));
           if (remainingMs <= FADE_STEPS * FADE_STEP_MS) {
             fadeStep.current += 1;
             await backend.setVolume(fadeVolume(fadeStep.current, FADE_STEPS));
@@ -95,6 +100,7 @@ export function useSessionPlayer(session: Session) {
               await backend.setVolume(1);
               sleepDeadline.current = null;
               fadeStep.current = 0;
+              sleepRemainingSec = null;
               setState((s) => ({ ...s, sleepTimer: null }));
             }
           }
@@ -111,6 +117,7 @@ export function useSessionPlayer(session: Session) {
           positionSec: status.positionSec,
           durationSec: status.durationSec || session.durationSec,
           finished: s.finished || finishedNow,
+          sleepRemainingSec,
         }));
       }, POLL_MS);
     })();
@@ -137,6 +144,9 @@ export function useSessionPlayer(session: Session) {
 
   const seekBy = useCallback(
     async (deltaSec: number) => {
+      if (Platform.OS !== 'web' && useSettings.getState().hapticsEnabled) {
+        Haptics.selectionAsync().catch(() => {});
+      }
       const status = await backend.getStatus();
       await backend.seekTo(status.positionSec + deltaSec);
     },
@@ -149,7 +159,7 @@ export function useSessionPlayer(session: Session) {
       sleepDeadline.current = seconds === null ? null : Date.now() + seconds * 1000;
       fadeStep.current = 0;
       if (seconds === null) backend.setVolume(1);
-      setState((s) => ({ ...s, sleepTimer: choice }));
+      setState((s) => ({ ...s, sleepTimer: choice, sleepRemainingSec: seconds }));
     },
     [backend],
   );

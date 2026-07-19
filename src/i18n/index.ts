@@ -19,6 +19,7 @@ export function resolveLocale(setting: 'system' | 'tr' | 'en'): AppLocale {
   return setting === 'system' ? deviceLocale() : setting;
 }
 
+// eslint-disable-next-line import/no-named-as-default-member -- i18next varsayılan API'si
 i18n.use(initReactI18next).init({
   resources: { tr: { translation: tr }, en: { translation: en } },
   lng: resolveLocale(useSettings.getState().language),
@@ -29,6 +30,7 @@ i18n.use(initReactI18next).init({
 // Ayar değişince dili canlı güncelle
 useSettings.subscribe((state, prev) => {
   if (state.language !== prev.language) {
+    // eslint-disable-next-line import/no-named-as-default-member -- i18next varsayılan API'si
     i18n.changeLanguage(resolveLocale(state.language));
   }
 });

@@ -24,7 +24,9 @@
     "heroToday": "Today's pick",
     "heroStart": "Start here",
     "heroProgramDay": "{{program}} · Day {{day}}",
-    "freePicks": "Free picks"
+    "freePicks": "Free picks",
+    "continueShelf": "Continue",
+    "resumeLeft": "{{count}} min left"
   },
   "explore": {
     "title": "Explore",
@@ -114,7 +116,8 @@
     "purchaseError": "Purchase could not be completed. Try again?",
     "restoreEmpty": "No purchases found to restore.",
     "terms": "Terms of Use",
-    "privacy": "Privacy Policy"
+    "privacy": "Privacy Policy",
+    "personal": "You've meditated {{count}} minutes so far — keep it growing."
   },
   "onboarding": {
     "welcomeBody": "Guided meditation in Turkish. Begin when you're ready.",

@@ -24,7 +24,9 @@
     "heroToday": "Bugünün önerisi",
     "heroStart": "Buradan başla",
     "heroProgramDay": "{{program}} · Gün {{day}}",
-    "freePicks": "Ücretsiz seçkiler"
+    "freePicks": "Ücretsiz seçkiler",
+    "continueShelf": "Devam et",
+    "resumeLeft": "kalan {{count}} dk"
   },
   "explore": {
     "title": "Keşfet",
@@ -114,7 +116,8 @@
     "purchaseError": "Satın alma tamamlanamadı. Tekrar dener misin?",
     "restoreEmpty": "Geri yüklenecek satın alma bulunamadı.",
     "terms": "Kullanım Koşulları",
-    "privacy": "Gizlilik Politikası"
+    "privacy": "Gizlilik Politikası",
+    "personal": "Şimdiye dek {{count}} dakika meditasyon yaptın — pratiğin büyüsün."
   },
   "onboarding": {
     "welcomeBody": "Türkçe yönlendirmeli meditasyon. Hazır olduğunda başla.",

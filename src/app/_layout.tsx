@@ -34,6 +34,9 @@ function AppStack() {
           headerTintColor: colors.textPrimary,
           headerTitleStyle: { fontFamily: fonts.bodyMedium },
           headerShadowVisible: false,
+          // Sakin geçişler: yumuşak fade (DESIGN.md §5.5); modal'lar alttan gelmeye devam eder
+          animation: 'fade',
+          animationDuration: 300,
         }}
       />
     </>

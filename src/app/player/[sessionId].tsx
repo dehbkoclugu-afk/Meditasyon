@@ -1,7 +1,8 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { AppText, BreathRing, Button, CoverArt, PlayRing, Screen } from '@/components';
 import {
@@ -20,7 +21,7 @@ import { useSessionPlayer } from '@/features/player/useSessionPlayer';
 import type { SleepTimerChoice } from '@/features/player/logic';
 import { timeLabel, upperFor } from '@/i18n/format';
 import { useLocale } from '@/i18n';
-import { radius, space } from '@/design/tokens';
+import { motion, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { useProgress } from '@/stores/progress';
 
@@ -69,6 +70,44 @@ function Player({ sessionKey }: { sessionKey: string }) {
 
   const [panel, setPanel] = useState<'none' | 'sleep' | 'ambience'>('none');
 
+  // Karartma modu (DESIGN.md §5.6): oynatma sürerken 10 sn dokunulmazsa
+  // arayüz söner, yalnız halka kalır; herhangi bir dokunuş geri getirir.
+  const [dimmed, setDimmed] = useState(false);
+  const dimTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const uiOpacity = useSharedValue(1);
+  const lastTap = useRef(0);
+
+  function poke() {
+    if (dimTimer.current) clearTimeout(dimTimer.current);
+    setDimmed(false);
+  }
+
+  useEffect(() => {
+    uiOpacity.value = withTiming(dimmed ? 0.08 : 1, {
+      duration: motion.slow,
+      easing: Easing.bezier(...motion.easing),
+    });
+  }, [dimmed, uiOpacity]);
+
+  useEffect(() => {
+    if (dimTimer.current) clearTimeout(dimTimer.current);
+    if (state.isPlaying && panel === 'none' && !dimmed) {
+      dimTimer.current = setTimeout(() => setDimmed(true), 10000);
+    }
+    return () => {
+      if (dimTimer.current) clearTimeout(dimTimer.current);
+    };
+  }, [state.isPlaying, panel, dimmed]);
+
+  const uiStyle = useAnimatedStyle(() => ({ opacity: uiOpacity.value }));
+
+  function onArtPress() {
+    const now = Date.now();
+    if (now - lastTap.current < 300) toggle(); // çift dokunuş: oynat/duraklat
+    lastTap.current = now;
+    poke();
+  }
+
   const categoryName =
     catalog.categories.find((c) => c.id === session.categories[0])?.name[locale] ?? '';
   const progress = state.durationSec > 0 ? state.positionSec / state.durationSec : 0;
@@ -100,25 +139,28 @@ function Player({ sessionKey }: { sessionKey: string }) {
     <>
       <Stack.Screen options={{ presentation: 'modal', headerShown: false }} />
       <Screen>
-        <View style={styles.root}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t('common.close')}
-            onPress={() => router.back()}
-            style={styles.close}
-            hitSlop={12}
-          >
-            <ChevronDownIcon color={colors.textSecondary} />
-          </Pressable>
+        <View style={styles.root} onTouchStart={poke}>
+          <Animated.View style={uiStyle}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('common.close')}
+              onPress={() => router.back()}
+              style={styles.close}
+              hitSlop={12}
+            >
+              <ChevronDownIcon color={colors.textSecondary} />
+            </Pressable>
+          </Animated.View>
 
-          <View style={styles.artBlock}>
+          <Pressable accessibilityRole="button" accessibilityLabel={state.isPlaying ? t('player.pause') : t('player.play')} onPress={onArtPress} style={styles.artBlock}>
             <PlayRing progress={progress} size={264}>
               <View style={styles.artClip}>
                 <CoverArt seed={session.id} categoryId={session.categories[0]} height={232} />
               </View>
             </PlayRing>
-          </View>
+          </Pressable>
 
+          <Animated.View style={[styles.dimGroup, uiStyle]}>
           <View style={styles.meta}>
             <AppText variant="caption" tone="secondary">
               {upperFor(categoryName, locale)}
@@ -188,6 +230,11 @@ function Player({ sessionKey }: { sessionKey: string }) {
               style={styles.bottomButton}
             >
               <MoonIcon color={state.sleepTimer !== null ? colors.accent : colors.textSecondary} />
+              {state.sleepRemainingSec !== null && (
+                <AppText variant="caption" tone="accent" style={{ fontVariant: ['tabular-nums'] }}>
+                  {timeLabel(state.sleepRemainingSec)}
+                </AppText>
+              )}
             </Pressable>
             <Pressable
               accessibilityRole="button"
@@ -250,6 +297,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
               )}
             </View>
           )}
+          </Animated.View>
         </View>
       </Screen>
     </>
@@ -280,6 +328,7 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
 
 const styles = StyleSheet.create({
   root: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg },
+  dimGroup: { alignItems: 'center', gap: space.lg, alignSelf: 'stretch' },
   pressed: { opacity: 0.85 },
   close: { position: 'absolute', top: 0, left: 0, minWidth: 44, minHeight: 44, justifyContent: 'center' },
   artBlock: { alignItems: 'center' },
