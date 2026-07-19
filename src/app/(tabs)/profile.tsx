@@ -126,6 +126,7 @@ export default function ProfileScreen() {
             <SessionCard
               key={session.id}
               id={session.id}
+              kind={session.type}
               title={session.title[locale]}
               durationLabel={durationLabel(session.durationSec, locale)}
               categoryLabel={

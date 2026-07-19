@@ -8,6 +8,7 @@ import { useTheme } from '@/design/theme';
 
 type Props = {
   id: string; // kapak üreteci tohumu — aynı seans hep aynı kapağı alır
+  kind?: 'guided' | 'sleep_story' | 'breathing';
   title: string;
   durationLabel: string; // "12 dk" — biçimleme çağıran tarafta (i18n)
   categoryLabel: string;
@@ -16,7 +17,7 @@ type Props = {
   onPress: () => void;
 };
 
-export function SessionCard({ id, title, durationLabel, categoryLabel, categoryId, locked, onPress }: Props) {
+export function SessionCard({ id, kind = 'guided', title, durationLabel, categoryLabel, categoryId, locked, onPress }: Props) {
   const { colors } = useTheme();
 
   return (
@@ -30,7 +31,7 @@ export function SessionCard({ id, title, durationLabel, categoryLabel, categoryI
         pressed && styles.pressed,
       ]}
     >
-      <CoverArt seed={id} categoryId={categoryId} height={96} />
+      <CoverArt seed={id} categoryId={categoryId} height={96} kind={kind} />
       <View style={styles.meta}>
         <AppText variant="display3" numberOfLines={2}>
           {title}

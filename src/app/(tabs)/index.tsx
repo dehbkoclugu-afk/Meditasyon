@@ -60,7 +60,7 @@ export default function TodayScreen() {
             pressed && styles.pressed,
           ]}
         >
-          <CoverArt seed={rec.session.id} categoryId={rec.session.categories[0]} height={148} />
+          <CoverArt seed={rec.session.id} categoryId={rec.session.categories[0]} height={148} kind={rec.session.type} />
           <View style={styles.heroMeta}>
             <AppText variant="caption" tone="accent">
               {upperFor(heroLabel, locale)}
@@ -123,7 +123,7 @@ export default function TodayScreen() {
                     ]}
                   >
                     <View style={styles.resumeArt}>
-                      <CoverArt seed={session.id} categoryId={session.categories[0]} height={64} />
+                      <CoverArt seed={session.id} categoryId={session.categories[0]} height={64} kind={session.type} />
                     </View>
                     <View style={styles.resumeMeta}>
                       <AppText variant="bodyMedium" numberOfLines={1}>
@@ -157,7 +157,7 @@ export default function TodayScreen() {
                 pressed && styles.pressed,
               ]}
             >
-              <CoverArt seed={session.id} categoryId={session.categories[0]} height={80} />
+              <CoverArt seed={session.id} categoryId={session.categories[0]} height={80} kind={session.type} />
               <View style={styles.shelfMeta}>
                 <AppText variant="bodyMedium" numberOfLines={2}>
                   {session.title[locale]}

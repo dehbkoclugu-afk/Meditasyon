@@ -141,7 +141,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
           <Pressable accessibilityRole="button" accessibilityLabel={state.isPlaying ? t('player.pause') : t('player.play')} onPress={onArtPress} style={styles.artBlock}>
             <PlayRing progress={progress} size={264}>
               <View style={styles.artClip}>
-                <CoverArt seed={session.id} categoryId={session.categories[0]} height={232} />
+                <CoverArt seed={session.id} categoryId={session.categories[0]} height={232} kind={session.type} />
               </View>
             </PlayRing>
           </Pressable>

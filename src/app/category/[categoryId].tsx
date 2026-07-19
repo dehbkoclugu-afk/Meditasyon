@@ -42,6 +42,7 @@ export default function CategoryScreen() {
               <SessionCard
                 key={session.id}
                 id={session.id}
+                kind={session.type}
                 title={session.title[locale]}
                 durationLabel={durationLabel(session.durationSec, locale)}
                 categoryLabel={category.name[locale]}

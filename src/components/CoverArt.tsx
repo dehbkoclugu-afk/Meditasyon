@@ -12,6 +12,8 @@ type Props = {
   seed: string;
   categoryId: CategoryId;
   height?: number;
+  /** Kompozisyon: guided=blob, sleep_story=yıldızlı gece, breathing=eş merkezli halkalar */
+  kind?: 'guided' | 'sleep_story' | 'breathing';
 };
 
 function hashSeed(seed: string): number {
@@ -58,13 +60,10 @@ function blobPath(rand: () => number, cx: number, cy: number, r: number): string
 const W = 320;
 const H = 128;
 
-export function CoverArt({ seed, categoryId, height = 96 }: Props) {
+export function CoverArt({ seed, categoryId, height = 96, kind = 'guided' }: Props) {
   const { colors } = useTheme();
   const color = categoryColors[categoryId];
   const rand = mulberry32(hashSeed(seed));
-  const blob1 = blobPath(rand, W * (0.32 + rand() * 0.36), H * 0.55, 52);
-  const blob2 = blobPath(rand, W * (0.45 + rand() * 0.3), H * (0.3 + rand() * 0.3), 30);
-  const moonX = W * (0.15 + rand() * 0.7);
 
   return (
     <View style={{ height, overflow: 'hidden' }} accessibilityElementsHidden>
@@ -76,11 +75,73 @@ export function CoverArt({ seed, categoryId, height = 96 }: Props) {
           </RadialGradient>
         </Defs>
         <Rect width={W} height={H} fill={`${color}1F`} />
-        <Circle cx={moonX} cy={H * 0.4} r={64} fill={`url(#glow-${seed})`} />
-        <Path d={blob1} fill={`${color}55`} />
-        <Path d={blob2} fill={`${color}88`} />
-        <Circle cx={moonX} cy={H * 0.4} r={7} fill={colors.textPrimary} opacity={0.85} />
+        {kind === 'sleep_story' && <StarryNight rand={rand} color={color} seed={seed} inkColor={colors.textPrimary} />}
+        {kind === 'breathing' && <RingSet rand={rand} color={color} />}
+        {kind === 'guided' && <BlobScene rand={rand} color={color} seed={seed} inkColor={colors.textPrimary} />}
       </Svg>
     </View>
   );
 }
+
+function BlobScene({ rand, color, seed, inkColor }: SceneProps) {
+  const blob1 = blobPath(rand, W * (0.32 + rand() * 0.36), H * 0.55, 52);
+  const blob2 = blobPath(rand, W * (0.45 + rand() * 0.3), H * (0.3 + rand() * 0.3), 30);
+  const moonX = W * (0.15 + rand() * 0.7);
+  return (
+    <>
+      <Circle cx={moonX} cy={H * 0.4} r={64} fill={`url(#glow-${seed})`} />
+      <Path d={blob1} fill={`${color}55`} />
+      <Path d={blob2} fill={`${color}88`} />
+      <Circle cx={moonX} cy={H * 0.4} r={7} fill={inkColor} opacity={0.85} />
+    </>
+  );
+}
+
+// Uyku hikâyesi: büyük ay + seed'e göre serpilmiş yıldızlar + ufuk tepesi
+function StarryNight({ rand, color, seed, inkColor }: SceneProps) {
+  const moonX = W * (0.6 + rand() * 0.25);
+  const stars = Array.from({ length: 14 }, () => ({
+    x: rand() * W,
+    y: rand() * H * 0.7,
+    r: 0.8 + rand() * 1.6,
+    o: 0.3 + rand() * 0.6,
+  }));
+  const hill = blobPath(rand, W * 0.35, H * 1.25, 90);
+  return (
+    <>
+      <Circle cx={moonX} cy={H * 0.32} r={70} fill={`url(#glow-${seed})`} />
+      {stars.map((s, i) => (
+        <Circle key={i} cx={s.x} cy={s.y} r={s.r} fill={inkColor} opacity={s.o} />
+      ))}
+      <Circle cx={moonX} cy={H * 0.32} r={14} fill={inkColor} opacity={0.9} />
+      <Circle cx={moonX + 6} cy={H * 0.32 - 4} r={12} fill={`${color}1F`} />
+      <Path d={hill} fill={`${color}66`} />
+    </>
+  );
+}
+
+// Nefes: eş merkezli halkalar — patern görselleşir
+function RingSet({ rand, color }: { rand: () => number; color: string }) {
+  const cx = W * (0.4 + rand() * 0.2);
+  const cy = H * 0.5;
+  const rings = [16, 30, 46, 64];
+  return (
+    <>
+      {rings.map((r, i) => (
+        <Circle
+          key={r}
+          cx={cx}
+          cy={cy}
+          r={r}
+          stroke={color}
+          strokeWidth={1.5}
+          fill="none"
+          opacity={0.85 - i * 0.18}
+        />
+      ))}
+      <Circle cx={cx} cy={cy} r={5} fill={color} opacity={0.9} />
+    </>
+  );
+}
+
+type SceneProps = { rand: () => number; color: string; seed: string; inkColor: string };
