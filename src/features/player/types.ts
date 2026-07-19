@@ -14,6 +14,8 @@ export type TrackMeta = {
   id: string;
   title: string;
   artist: string; // uygulama adı — kilit ekranında görünür
+  /** Kilit ekranı kapak görseli (Metro require numarası); yoksa atlanır. */
+  artwork?: number;
 };
 
 export interface AudioBackend {

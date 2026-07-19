@@ -53,6 +53,7 @@ function createTrackPlayerBackend(): AudioBackend {
         url: asset as unknown as string,
         title: meta.title,
         artist: meta.artist,
+        artwork: meta.artwork as unknown as string,
       });
       if (startAtSec > 0) await TrackPlayer.seekTo(startAtSec);
     },

@@ -6,6 +6,7 @@ import { getAudioBackend } from './backend';
 import { playBellIfEnabled } from './bell';
 import { fadeVolume, findProgramDay, isSessionCompleted, sleepTimerSeconds, type SleepTimerChoice } from './logic';
 import { brand } from '@/config/brand';
+import { artworkAssets } from '@/content/artwork-map';
 import { audioAssets } from '@/content/audio-map';
 import { catalog } from '@/content/catalog';
 import type { Session } from '@/content/schema';
@@ -75,7 +76,12 @@ export function useSessionPlayer(session: Session) {
         session.durationSec - startPosition > 30 && startPosition > 5 ? startPosition : 0;
       await backend.load(
         audioAssets[session.id],
-        { id: session.id, title: session.title.tr, artist: brand.name },
+        {
+          id: session.id,
+          title: session.title.tr,
+          artist: brand.name,
+          artwork: artworkAssets[session.id],
+        },
         resumeAt,
       );
       if (cancelled) return;
