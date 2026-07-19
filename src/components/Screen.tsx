@@ -13,7 +13,6 @@ function GrainOverlay() {
       source={{ uri: GRAIN_URI }}
       style={styles.grain}
       resizeMode="repeat"
-      pointerEvents="none"
       accessibilityElementsHidden
     />
   );
@@ -58,5 +57,13 @@ export function Screen({ children, scroll = false, edgeToEdge = false }: Props) 
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  grain: { ...StyleSheet.absoluteFillObject, opacity: 0.02 },
+  grain: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.02,
+    pointerEvents: 'none',
+  },
 });
