@@ -73,7 +73,9 @@
     "minutes5": "5 min",
     "minutes10": "10 min",
     "minutes20": "20 min",
-    "minutes45": "45 min"
+    "minutes45": "45 min",
+    "programDoneTitle": "Program complete",
+    "programDoneBody": "{{program}} is done. You made room for yourself every day — this practice is yours now."
   },
   "breathing": {
     "title": "Breathe",
@@ -179,6 +181,7 @@
     "manageSubscription": "Manage subscription",
     "restore": "Restore purchases",
     "about": "ABOUT",
-    "version": "Version {{version}}"
+    "version": "Version {{version}}",
+    "bell": "Ending bell"
   }
 }

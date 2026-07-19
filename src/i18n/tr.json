@@ -73,7 +73,9 @@
     "minutes5": "5 dk",
     "minutes10": "10 dk",
     "minutes20": "20 dk",
-    "minutes45": "45 dk"
+    "minutes45": "45 dk",
+    "programDoneTitle": "Program tamamlandı",
+    "programDoneBody": "{{program}} bitti. Yedi gün boyunca kendine alan açtın — bu artık senin pratiğin."
   },
   "breathing": {
     "title": "Nefes",
@@ -179,6 +181,7 @@
     "manageSubscription": "Aboneliği yönet",
     "restore": "Satın alımları geri yükle",
     "about": "HAKKINDA",
-    "version": "Sürüm {{version}}"
+    "version": "Sürüm {{version}}",
+    "bell": "Bitiş çanı"
   }
 }

@@ -1,8 +1,9 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import * as StoreReview from 'expo-store-review';
 
 import { AppText, BreathRing, Button, CoverArt, PlayRing, Screen } from '@/components';
 import {
@@ -15,8 +16,9 @@ import {
   PlayIcon,
   WavesIcon,
 } from '@/components/icons';
-import { catalog, sessionsById } from '@/content/catalog';
+import { catalog, programsById, sessionsById } from '@/content/catalog';
 import { useAmbience, type AmbienceVolume } from '@/features/player/useAmbience';
+import { findProgramDay } from '@/features/player/logic';
 import { useSessionPlayer } from '@/features/player/useSessionPlayer';
 import type { SleepTimerChoice } from '@/features/player/logic';
 import { timeLabel, upperFor } from '@/i18n/format';
@@ -24,6 +26,8 @@ import { useLocale } from '@/i18n';
 import { motion, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { useProgress } from '@/stores/progress';
+import { useSettings } from '@/stores/settings';
+import { useStats } from '@/stores/stats';
 
 const SLEEP_CHOICES: { value: SleepTimerChoice; labelKey: string }[] = [
   { value: 5, labelKey: 'player.minutes5' },
@@ -114,25 +118,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
   const remaining = Math.max(0, state.durationSec - state.positionSec);
 
   if (state.finished) {
-    return (
-      <>
-        <Stack.Screen options={{ presentation: 'modal', headerShown: false }} />
-        <Screen>
-          <View style={styles.finish}>
-            <BreathRing size={140} />
-            <View style={styles.finishCopy}>
-              <AppText variant="display1" style={styles.centerText}>
-                {t('player.doneTitle')}
-              </AppText>
-              <AppText tone="secondary" style={styles.centerText}>
-                {t('player.doneBody')}
-              </AppText>
-            </View>
-            <Button label={t('common.close')} onPress={() => router.back()} />
-          </View>
-        </Screen>
-      </>
-    );
+    return <FinishView sessionKey={session.id} onClose={() => router.back()} />;
   }
 
   return (
@@ -298,6 +284,54 @@ function Player({ sessionKey }: { sessionKey: string }) {
             </View>
           )}
           </Animated.View>
+        </View>
+      </Screen>
+    </>
+  );
+}
+
+function FinishView({ sessionKey, onClose }: { sessionKey: string; onClose: () => void }) {
+  const { t } = useTranslation();
+  const locale = useLocale();
+  const programs = useProgress((s) => s.programs);
+
+  // Program bitti mi? Son gün tamamlandıysa kutlama varyantı gösterilir.
+  const day = findProgramDay(catalog, sessionKey);
+  const program = day ? programsById.get(day.program.id) : undefined;
+  const programDone =
+    program != null &&
+    (programs[program.id]?.completedDays.length ?? 0) >= program.days.length;
+
+  // Doğru anda değerlendirme istemi: 3. tamamlanan seans, bir kez.
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    const { totalSessions } = useStats.getState();
+    const { reviewAsked, setReviewAsked } = useSettings.getState();
+    if (reviewAsked || totalSessions < 3) return;
+    StoreReview.hasAction().then((can) => {
+      if (!can) return;
+      setReviewAsked();
+      StoreReview.requestReview().catch(() => {});
+    });
+  }, []);
+
+  return (
+    <>
+      <Stack.Screen options={{ presentation: 'modal', headerShown: false }} />
+      <Screen>
+        <View style={styles.finish}>
+          <BreathRing size={140} />
+          <View style={styles.finishCopy}>
+            <AppText variant="display1" style={styles.centerText}>
+              {programDone ? t('player.programDoneTitle') : t('player.doneTitle')}
+            </AppText>
+            <AppText tone="secondary" style={styles.centerText}>
+              {programDone && program
+                ? t('player.programDoneBody', { program: program.title[locale] })
+                : t('player.doneBody')}
+            </AppText>
+          </View>
+          <Button label={t('common.close')} onPress={onClose} />
         </View>
       </Screen>
     </>

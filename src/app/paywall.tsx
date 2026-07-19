@@ -10,6 +10,7 @@ import type { Plan, PlanId } from '@/features/purchases/types';
 import { radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { usePremium } from '@/stores/premium';
+import { useStats } from '@/stores/stats';
 
 // Gerçek paywall. Fiyatlar daima RevenueCat Offerings'ten (hardcode yasak).
 // Apple kontrol listesi: kapatma X'i baştan görünür, geri yükle + şartlar +
@@ -38,6 +39,7 @@ export default function PaywallScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const setPremium = usePremium((s) => s.setPremium);
+  const totalMinutes = useStats((s) => s.totalMinutes);
 
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loadState, setLoadState] = useState<LoadState>('loading');
@@ -117,6 +119,11 @@ export default function PaywallScreen() {
           <View style={styles.header}>
             <AppText variant="display1">{t('paywall.title')}</AppText>
             <AppText tone="secondary">{t('paywall.subtitle')}</AppText>
+            {totalMinutes >= 10 && (
+              <AppText variant="secondary" tone="accent">
+                {t('paywall.personal', { count: totalMinutes })}
+              </AppText>
+            )}
           </View>
 
           <View style={styles.perks}>

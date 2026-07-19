@@ -145,6 +145,14 @@ export default function SettingsScreen() {
                 thumbColor={colors.textPrimary}
               />
             </Row>
+            <Row label={t('settings.bell')}>
+              <Switch
+                value={settings.bellEnabled}
+                onValueChange={settings.setBellEnabled}
+                trackColor={{ true: colors.accent, false: colors.border }}
+                thumbColor={colors.textPrimary}
+              />
+            </Row>
           </Section>
 
           <Section title={t('settings.premium')}>

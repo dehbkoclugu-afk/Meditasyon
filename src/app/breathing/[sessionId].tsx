@@ -20,6 +20,7 @@ import {
   totalSeconds,
   type BreathPhase,
 } from '@/features/breathing/engine';
+import { playBellIfEnabled } from '@/features/player/bell';
 import { motion, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { useLocale } from '@/i18n';
@@ -85,6 +86,7 @@ function Breathing({ sessionKey }: { sessionKey: string }) {
       if (!recorded.current) {
         recorded.current = true;
         useStats.getState().recordSession(total);
+        playBellIfEnabled();
       }
       return;
     }

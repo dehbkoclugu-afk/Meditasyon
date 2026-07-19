@@ -15,6 +15,7 @@ type SettingsState = {
   language: 'system' | 'tr' | 'en';
   reminder: { enabled: boolean; hour: number; minute: number };
   hapticsEnabled: boolean;
+  bellEnabled: boolean;
   /** Son seçilen ambience — sonraki seansta otomatik sürer. */
   ambience: { id: string | null; volume: number };
   reviewAsked: boolean;
@@ -24,6 +25,7 @@ type SettingsState = {
   setLanguage: (language: 'system' | 'tr' | 'en') => void;
   setReminder: (reminder: { enabled: boolean; hour: number; minute: number }) => void;
   setHapticsEnabled: (enabled: boolean) => void;
+  setBellEnabled: (enabled: boolean) => void;
   setAmbience: (ambience: { id: string | null; volume: number }) => void;
   setReviewAsked: () => void;
 };
@@ -37,6 +39,7 @@ export const useSettings = create<SettingsState>()(
       language: 'system',
       reminder: { enabled: false, hour: 9, minute: 0 },
       hapticsEnabled: true,
+      bellEnabled: true,
       ambience: { id: null, volume: 0.7 },
       reviewAsked: false,
 
@@ -46,6 +49,7 @@ export const useSettings = create<SettingsState>()(
       setLanguage: (language) => set({ language }),
       setReminder: (reminder) => set({ reminder }),
       setHapticsEnabled: (hapticsEnabled) => set({ hapticsEnabled }),
+      setBellEnabled: (bellEnabled) => set({ bellEnabled }),
       setAmbience: (ambience) => set({ ambience }),
       setReviewAsked: () => set({ reviewAsked: true }),
     }),

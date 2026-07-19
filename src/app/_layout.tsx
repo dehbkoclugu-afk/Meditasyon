@@ -16,12 +16,14 @@ import { useEffect } from 'react';
 import { ThemeProvider, useTheme } from '@/design/theme';
 import { fonts } from '@/design/tokens';
 import { usePurchasesInit } from '@/features/purchases/usePurchasesInit';
+import { setupStreakGuard } from '@/features/reminders/streakGuard';
 import { useSettings } from '@/stores/settings';
 
 SplashScreen.preventAutoHideAsync();
 
 function AppStack() {
   usePurchasesInit();
+  useEffect(() => setupStreakGuard(), []);
   const { colors, isDark } = useTheme();
   return (
     <>

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
 import { getAudioBackend } from './backend';
+import { playBellIfEnabled } from './bell';
 import { fadeVolume, findProgramDay, isSessionCompleted, sleepTimerSeconds, type SleepTimerChoice } from './logic';
 import { brand } from '@/config/brand';
 import { audioAssets } from '@/content/audio-map';
@@ -54,6 +55,7 @@ export function useSessionPlayer(session: Session) {
     const day = findProgramDay(catalog, session.id);
     if (day) completeProgramDay(day.program.id, day.dayIndex);
     useStats.getState().recordSession(session.durationSec);
+    playBellIfEnabled();
     if (Platform.OS !== 'web' && useSettings.getState().hapticsEnabled) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     }
