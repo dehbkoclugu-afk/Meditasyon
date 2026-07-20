@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText, EmptyState, PlayRing, Screen, SessionCard, StatTile } from '@/components';
+import { BreathIcon, ClockIcon, FlameIcon } from '@/components/icons';
 import { canAccessSession } from '@/content/access';
 import { catalog, sessionsById } from '@/content/catalog';
 import { computeBadges } from '@/features/stats/badges';
@@ -65,9 +66,21 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.tiles}>
-          <StatTile value={String(stats.totalMinutes)} label={t('profile.totalMinutes')} />
-          <StatTile value={String(stats.totalSessions)} label={t('profile.sessions')} />
-          <StatTile value={String(streak)} label={t('profile.streak')} />
+          <StatTile
+            value={String(stats.totalMinutes)}
+            label={t('profile.totalMinutes')}
+            icon={<ClockIcon color={colors.textSecondary} size={14} />}
+          />
+          <StatTile
+            value={String(stats.totalSessions)}
+            label={t('profile.sessions')}
+            icon={<BreathIcon color={colors.textSecondary} size={14} />}
+          />
+          <StatTile
+            value={String(streak)}
+            label={t('profile.streak')}
+            icon={<FlameIcon color={colors.textSecondary} size={14} />}
+          />
         </View>
 
         {/* Haftalık esnek hedef — suçluluksuz (ayarlardan) */}
@@ -232,13 +245,14 @@ function HeatStrip({ activeDays }: { activeDays: string[] }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const active = new Set(activeDays);
-  const days: { key: string; on: boolean }[] = [];
+  const days: { key: string; on: boolean; monthStart: boolean }[] = [];
   const today = new Date();
   for (let i = 55; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
     const key = localDateKey(d);
-    days.push({ key, on: active.has(key) });
+    // Ay sınırında nefes boşluğu — şerit takvimle hizalanır (i !== 55: ilk hücre hariç)
+    days.push({ key, on: active.has(key), monthStart: d.getDate() === 1 && i !== 55 });
   }
   return (
     <View style={styles.heatGrid} accessibilityLabel={t('profile.heatLabel', { count: active.size })}>
@@ -248,6 +262,7 @@ function HeatStrip({ activeDays }: { activeDays: string[] }) {
           style={[
             styles.heatCell,
             { backgroundColor: day.on ? colors.accent : colors.border },
+            day.monthStart && styles.monthGap,
           ]}
         />
       ))}
@@ -263,6 +278,7 @@ const styles = StyleSheet.create({
   heatCard: { borderRadius: radius.card, borderWidth: 1, padding: space.md, gap: space.sm },
   heatGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
   heatCell: { width: 14, height: 14, borderRadius: 4 },
+  monthGap: { marginLeft: 6 },
   moodCell: { width: 16, height: 16, borderRadius: 8 },
   goalCard: {
     flexDirection: 'row',

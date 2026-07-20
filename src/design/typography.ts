@@ -9,16 +9,19 @@ export const textVariants = {
     fontFamily: fonts.display,
     fontSize: type.size.display1,
     lineHeight: 40,
+    letterSpacing: -0.5,
   },
   display2: {
     fontFamily: fonts.display,
     fontSize: type.size.display2,
     lineHeight: 34,
+    letterSpacing: -0.4,
   },
   display3: {
     fontFamily: fonts.display,
     fontSize: type.size.display3,
     lineHeight: 28,
+    letterSpacing: -0.3,
   },
   body: {
     fontFamily: fonts.body,

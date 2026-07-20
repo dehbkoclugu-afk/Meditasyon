@@ -106,7 +106,7 @@ export default function ProgramScreen() {
 
 const styles = StyleSheet.create({
   stack: { gap: space.md },
-  pressed: { opacity: 0.9 },
+  pressed: { transform: [{ scale: 0.98 }], opacity: 0.95 },
   dayList: { gap: space.xs, marginTop: space.xs },
   dayRow: {
     flexDirection: 'row',

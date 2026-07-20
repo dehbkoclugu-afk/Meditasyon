@@ -140,6 +140,16 @@ export function FlameIcon({ color, size = 24 }: IconProps) {
   );
 }
 
+/** Dakika istatistiği — saat */
+export function ClockIcon({ color, size = 24 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Circle cx={12} cy={12} r={8.5} stroke={color} {...strokeProps} />
+      <Path d="M12 7.5V12l3 2.2" stroke={color} {...strokeProps} />
+    </Svg>
+  );
+}
+
 /** Sen — filizlenen tohum */
 export function SeedIcon({ color, size = 24 }: IconProps) {
   return (

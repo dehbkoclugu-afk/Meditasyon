@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     overflow: 'hidden',
   },
-  pressed: { opacity: 0.9 },
+  pressed: { transform: [{ scale: 0.98 }], opacity: 0.95 },
   meta: {
     padding: space.md,
     gap: space.xs,

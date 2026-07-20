@@ -33,6 +33,11 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
     ghost: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
     text: {},
   };
+  const pressedByVariant: Record<Variant, ViewStyle> = {
+    primary: { backgroundColor: colors.accentPressed }, // opaklık değil, gerçek ton
+    ghost: { backgroundColor: colors.surfaceHigh },
+    text: { opacity: 0.7 },
+  };
 
   return (
     <Pressable
@@ -44,6 +49,7 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
       style={({ pressed }) => [
         base,
         byVariant[variant],
+        pressed && pressedByVariant[variant],
         pressed && styles.pressed,
         disabled && styles.disabled,
         style,
@@ -65,6 +71,6 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
 }
 
 const styles = StyleSheet.create({
-  pressed: { opacity: 0.85 },
+  pressed: { transform: [{ scale: 0.98 }] },
   disabled: { opacity: 0.4 },
 });

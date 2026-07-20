@@ -83,7 +83,7 @@ export default function BreatheScreen() {
 
 const styles = StyleSheet.create({
   stack: { gap: space.md },
-  pressed: { opacity: 0.9 },
+  pressed: { transform: [{ scale: 0.98 }], opacity: 0.95 },
   card: {
     flexDirection: 'row',
     alignItems: 'center',

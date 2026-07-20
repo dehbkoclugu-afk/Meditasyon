@@ -179,7 +179,7 @@ export default function ExploreScreen() {
 
 const styles = StyleSheet.create({
   stack: { gap: space.md },
-  pressed: { opacity: 0.9 },
+  pressed: { transform: [{ scale: 0.98 }], opacity: 0.95 },
   search: {
     borderRadius: radius.pill,
     borderWidth: 1,

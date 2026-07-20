@@ -1,8 +1,18 @@
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, {
+  Easing,
+  cancelAnimation,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 import { AppText } from './AppText';
-import { space } from '@/design/tokens';
+import { motion, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 
 // Boş durum sahnesi: çıplak metin yerine küçük, sakin bir illüstrasyon.
@@ -19,8 +29,23 @@ export function EmptyState({ scene, title, body }: Props) {
   const stroke = { stroke: colors.textSecondary, strokeWidth: 1.5, strokeLinecap: 'round' as const, fill: 'none' as const };
   const accent = { stroke: colors.accent, strokeWidth: 1.5, strokeLinecap: 'round' as const, fill: 'none' as const };
 
+  // 6 sn'lik yumuşak süzülme — sahne canlı ama sakin (reduced-motion'da sabit)
+  const reduced = useReducedMotion();
+  const phase = useSharedValue(0);
+  useEffect(() => {
+    if (reduced) return;
+    phase.value = withRepeat(
+      withTiming(1, { duration: 6000, easing: Easing.bezier(...motion.easing) }),
+      -1,
+      true,
+    );
+    return () => cancelAnimation(phase);
+  }, [reduced, phase]);
+  const float = useAnimatedStyle(() => ({ transform: [{ translateY: phase.value * -6 }] }));
+
   return (
     <View style={styles.wrap}>
+      <Animated.View style={float}>
       <Svg width={120} height={80} viewBox="0 0 120 80">
         {scene === 'search' && (
           <>
@@ -47,6 +72,7 @@ export function EmptyState({ scene, title, body }: Props) {
           </>
         )}
       </Svg>
+      </Animated.View>
       {title && (
         <AppText variant="display3" style={styles.center}>
           {title}

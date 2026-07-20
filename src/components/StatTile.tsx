@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from './AppText';
@@ -7,9 +8,11 @@ import { useTheme } from '@/design/theme';
 type Props = {
   value: string; // "128" — biçimleme çağıran tarafta
   label: string; // "toplam dakika"
+  /** 16px soluk mikro ikon — etiketin yanında (örn. ClockIcon) */
+  icon?: ReactNode;
 };
 
-export function StatTile({ value, label }: Props) {
+export function StatTile({ value, label, icon }: Props) {
   const { colors } = useTheme();
   return (
     <View
@@ -17,9 +20,12 @@ export function StatTile({ value, label }: Props) {
       style={[styles.tile, { backgroundColor: colors.surface, borderColor: colors.border }]}
     >
       <AppText variant="numeral">{value}</AppText>
-      <AppText variant="caption" tone="secondary">
-        {label}
-      </AppText>
+      <View style={styles.labelRow}>
+        {icon ? <View style={styles.icon}>{icon}</View> : null}
+        <AppText variant="caption" tone="secondary">
+          {label}
+        </AppText>
+      </View>
     </View>
   );
 }
@@ -32,4 +38,6 @@ const styles = StyleSheet.create({
     padding: space.md,
     gap: 2,
   },
+  labelRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  icon: { opacity: 0.6 },
 });

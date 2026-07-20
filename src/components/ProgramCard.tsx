@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     padding: space.md,
     gap: space.xs,
   },
-  pressed: { opacity: 0.9 },
+  pressed: { transform: [{ scale: 0.98 }], opacity: 0.95 },
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',

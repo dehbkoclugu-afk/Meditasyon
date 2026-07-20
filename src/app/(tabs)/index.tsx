@@ -259,7 +259,7 @@ export default function TodayScreen() {
 
 const styles = StyleSheet.create({
   stack: { gap: space.lg },
-  pressed: { opacity: 0.9 },
+  pressed: { transform: [{ scale: 0.98 }], opacity: 0.95 },
   hero: { borderRadius: radius.card, borderWidth: 1, overflow: 'hidden' },
   heroMeta: { padding: space.md, gap: space.xs },
   chips: { gap: space.xs, paddingRight: space.lg },
