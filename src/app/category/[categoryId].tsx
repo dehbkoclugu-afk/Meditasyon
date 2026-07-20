@@ -37,7 +37,12 @@ export default function CategoryScreen() {
           {/* Dev, kırpık kapak: kategori kimliği başlığın üstünde nefes alır */}
           <View style={styles.headerArt} accessibilityElementsHidden>
             <View style={styles.headerArtInner}>
-              <CoverArt seed={category.id} categoryId={category.id as CategoryId} height={280} />
+              <CoverArt
+                seed={sessions[0]?.id ?? category.id}
+                categoryId={category.id as CategoryId}
+                height={280}
+                kind={sessions[0]?.type}
+              />
             </View>
           </View>
           <AppText variant="display1">{category.name[locale]}</AppText>

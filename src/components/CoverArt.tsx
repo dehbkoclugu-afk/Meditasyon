@@ -1,12 +1,12 @@
-import { View } from 'react-native';
+import { Image, View } from 'react-native';
 import Svg, { Circle, Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 
+import { artworkAssets } from '@/content/artwork-map';
 import { categoryColors, type CategoryId } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 
-// Kapak üreteci: seans id'sinden deterministik organik blob (DESIGN.md —
-// fotoğraf yasak, kapaklar kategori renginden türetilmiş soyut illüstrasyon).
-// Aynı id her zaman aynı kapağı üretir; asset dosyası gerekmez.
+// Kapak: seans id'sine özel illüstrasyon varsa (content/art) onu basar;
+// yoksa (kategori/program tohumu) deterministik SVG blob'a düşer.
 
 type Props = {
   seed: string;
@@ -64,6 +64,15 @@ export function CoverArt({ seed, categoryId, height = 96, kind = 'guided' }: Pro
   const { colors } = useTheme();
   const color = categoryColors[categoryId];
   const rand = mulberry32(hashSeed(seed));
+
+  const art = artworkAssets[seed];
+  if (art != null) {
+    return (
+      <View style={{ height, overflow: 'hidden' }} accessibilityElementsHidden>
+        <Image source={art} resizeMode="cover" style={{ width: '100%', height: '100%' }} />
+      </View>
+    );
+  }
 
   return (
     <View style={{ height, overflow: 'hidden' }} accessibilityElementsHidden>
