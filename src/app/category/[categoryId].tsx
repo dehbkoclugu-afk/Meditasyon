@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { AppText, CoverArt, EmptyState, Screen, SessionCard } from '@/components';
 import { canAccessSession } from '@/content/access';
-import { catalog, sessionsInCategory } from '@/content/catalog';
+import { catalog, categoryCoverSeed, sessionsInCategory } from '@/content/catalog';
 import { useOpenSession } from '@/features/navigation';
 import { durationLabel } from '@/i18n/format';
 import { useLocale } from '@/i18n';
@@ -38,10 +38,10 @@ export default function CategoryScreen() {
           <View style={styles.headerArt} accessibilityElementsHidden>
             <View style={styles.headerArtInner}>
               <CoverArt
-                seed={sessions[0]?.id ?? category.id}
+                seed={categoryCoverSeed(category.id).seed}
                 categoryId={category.id as CategoryId}
                 height={280}
-                kind={sessions[0]?.type}
+                kind={categoryCoverSeed(category.id).kind}
               />
             </View>
           </View>

@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText, CoverArt, EmptyState, ProgramCard, Screen, SessionCard } from '@/components';
 import { canAccessSession } from '@/content/access';
-import { catalog, sessionsInCategory } from '@/content/catalog';
+import { catalog, categoryCoverSeed } from '@/content/catalog';
 import { useOpenSession } from '@/features/navigation';
 import { durationLabel, normalizeSearch } from '@/i18n/format';
 import { useLocale } from '@/i18n';
@@ -147,8 +147,7 @@ export default function ExploreScreen() {
             </AppText>
             <View style={styles.grid}>
               {catalog.categories.map((category) => {
-                // Mini kapak: kategorinin ilk seansının illüstrasyonu
-                const cover = sessionsInCategory(category.id)[0];
+                const cover = categoryCoverSeed(category.id);
                 return (
                   <Pressable
                     key={category.id}
@@ -166,15 +165,16 @@ export default function ExploreScreen() {
                       pressed && styles.pressed,
                     ]}
                   >
-                    <View style={styles.miniArt} accessibilityElementsHidden>
-                      <CoverArt
-                        seed={cover?.id ?? category.id}
-                        categoryId={category.id as CategoryId}
-                        height={32}
-                        kind={cover?.type}
-                      />
+                    <CoverArt
+                      seed={cover.seed}
+                      categoryId={category.id as CategoryId}
+                      height={110}
+                      kind={cover.kind}
+                    />
+                    {/* Alt şerit: okunurluk için zemin renginde yarı saydam scrim */}
+                    <View style={[styles.gridLabel, { backgroundColor: `${colors.bg}B8` }]}>
+                      <AppText variant="bodyMedium">{category.name[locale]}</AppText>
                     </View>
-                    <AppText variant="bodyMedium">{category.name[locale]}</AppText>
                   </Pressable>
                 );
               })}
@@ -214,10 +214,16 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     borderRadius: radius.card,
     borderWidth: 1,
-    padding: space.md,
-    gap: space.xs,
-    minHeight: 72,
+    overflow: 'hidden',
+  },
+  gridLabel: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: space.sm,
+    paddingVertical: space.xs,
+    minHeight: 40,
     justifyContent: 'center',
   },
-  miniArt: { width: 48, height: 32, borderRadius: 8, overflow: 'hidden' },
 });
