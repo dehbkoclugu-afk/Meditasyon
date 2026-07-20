@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     paddingHorizontal: space.md,
-    minHeight: 40,
+    minHeight: 44,
     justifyContent: 'center',
   },
 });

@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     padding: space.md,
   },
   premiumMeta: { gap: 2 },
-  premiumCta: { borderRadius: 999, paddingHorizontal: space.md, minHeight: 36, justifyContent: 'center' },
+  premiumCta: { borderRadius: 999, paddingHorizontal: space.md, minHeight: 44, justifyContent: 'center' },
   badgeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
   badge: { borderRadius: 999, borderWidth: 1, paddingHorizontal: space.sm, paddingVertical: 6 },
 });

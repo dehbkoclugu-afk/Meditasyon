@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     paddingHorizontal: space.sm,
-    minHeight: 36,
+    minHeight: 44,
     justifyContent: 'center',
   },
   finish: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg },
