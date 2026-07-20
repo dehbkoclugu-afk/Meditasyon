@@ -1,5 +1,7 @@
 import { NativeModules } from 'react-native';
 
+import { useSettings } from '@/stores/settings';
+
 // RNTP playback service: kilit ekranı / bildirim kontrollerinden gelen
 // uzaktan komutları işler. index.js'te uygulama açılırken kaydedilir.
 
@@ -25,9 +27,19 @@ export function registerPlaybackServiceIfAvailable(): void {
       await TrackPlayer.seekTo(Math.max(0, position - interval));
     });
     TrackPlayer.addEventListener(Event.RemoteSeek, ({ position }) => TrackPlayer.seekTo(position));
-    // Kulaklık çekilmesi (duck olmayan kesinti): duraklat (PLAN.md §6.4)
+    // Kesinti yönetimi (PLAN §4.2/§6.4): çağrı sırasında duraklat;
+    // kesinti bitince kullanıcı ayarına göre otomatik devam et.
+    let pausedByInterruption = false;
     TrackPlayer.addEventListener(Event.RemoteDuck, async ({ paused, permanent }) => {
-      if (paused || permanent) await TrackPlayer.pause();
+      if (paused || permanent) {
+        pausedByInterruption = !permanent;
+        await TrackPlayer.pause();
+        return;
+      }
+      if (pausedByInterruption && useSettings.getState().autoResumeAfterCall) {
+        pausedByInterruption = false;
+        await TrackPlayer.play();
+      }
     });
   });
 }

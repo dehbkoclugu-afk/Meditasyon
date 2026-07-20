@@ -12,6 +12,7 @@ import { radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { usePremium } from '@/stores/premium';
 import { useProgress } from '@/stores/progress';
+import { useSettings } from '@/stores/settings';
 
 export default function ProgramScreen() {
   const { t } = useTranslation();
@@ -21,6 +22,7 @@ export default function ProgramScreen() {
   const openSession = useOpenSession();
   const isPremium = usePremium((s) => s.isPremium);
   const progress = useProgress((s) => s.programs[programId ?? '']);
+  const sequentialUnlock = useSettings((s) => s.sequentialUnlock);
 
   const program = programId ? programsById.get(programId) : undefined;
   if (!program) {
@@ -49,7 +51,7 @@ export default function ProgramScreen() {
               const isCompleted = completedDays.includes(index);
               const isCurrent = index === unlockedDay && !isCompleted;
               // Gün kilidi iki katmanlı: sıra kilidi (önceki gün bitmedi) + erişim kilidi (premium)
-              const sequenceLocked = index > unlockedDay;
+              const sequenceLocked = sequentialUnlock && index > unlockedDay;
               const accessLocked = !canAccessProgramDay(program, index, isPremium);
               const locked = sequenceLocked || accessLocked;
 

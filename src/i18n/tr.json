@@ -153,7 +153,8 @@
     "premiumSee": "İncele",
     "badges": "Rozetler",
     "favorites": "Favoriler",
-    "favoritesEmpty": "Player'daki kalple beğendiğin seanslar burada birikir."
+    "favoritesEmpty": "Player'daki kalple beğendiğin seanslar burada birikir.",
+    "goalProgress": "Bu hafta {{done}}/{{goal}} gün"
   },
   "badges": {
     "ilk-adim": "İlk seans",
@@ -187,6 +188,12 @@
     "exportData": "Verileri dışa aktar",
     "importData": "Yedekten geri yükle",
     "importOk": "Yedek geri yüklendi.",
-    "importInvalid": "Geçersiz yedek dosyası."
+    "importInvalid": "Geçersiz yedek dosyası.",
+    "keepAwake": "Seans sırasında ekranı açık tut",
+    "autoResume": "Çağrı sonrası otomatik devam",
+    "sequentialUnlock": "Program günleri sırayla açılsın",
+    "goal": "HAFTALIK HEDEF",
+    "goalOff": "Kapalı",
+    "goalDays": "Haftada {{count}} gün"
   }
 }

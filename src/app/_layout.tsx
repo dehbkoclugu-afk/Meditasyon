@@ -8,22 +8,49 @@ import {
   AlbertSans_500Medium,
   AlbertSans_700Bold,
 } from '@expo-google-fonts/albert-sans';
-import { Stack } from 'expo-router';
+import * as Notifications from 'expo-notifications';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 
 import { ThemeProvider, useTheme } from '@/design/theme';
 import { fonts } from '@/design/tokens';
 import { usePurchasesInit } from '@/features/purchases/usePurchasesInit';
+import { syncDailyReminders } from '@/features/reminders/reminders';
 import { setupStreakGuard } from '@/features/reminders/streakGuard';
 import { useSettings } from '@/stores/settings';
+import { useStats } from '@/stores/stats';
 
 SplashScreen.preventAutoHideAsync();
+
+// Bildirim senkronu: açılışta + her istatistik değişiminde günlük hatırlatıcılar
+// yeniden planlanır (bugün seans yapıldıysa bugünün bildirimi düşer);
+// bildirime dokunuş data.url'e yönlendirir (deep link).
+function useNotificationSync() {
+  const router = useRouter();
+  useEffect(() => {
+    syncDailyReminders();
+    const unsubscribe = useStats.subscribe(() => {
+      syncDailyReminders();
+    });
+    if (Platform.OS === 'web') return unsubscribe;
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+      const url = response.notification.request.content.data?.url;
+      if (typeof url === 'string') router.push(url as never);
+    });
+    return () => {
+      unsubscribe();
+      sub.remove();
+    };
+  }, [router]);
+}
 
 function AppStack() {
   usePurchasesInit();
   useEffect(() => setupStreakGuard(), []);
+  useNotificationSync();
   const { colors, isDark } = useTheme();
   return (
     <>

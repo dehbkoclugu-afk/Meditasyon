@@ -161,6 +161,43 @@ export default function SettingsScreen() {
                 thumbColor={colors.textPrimary}
               />
             </Row>
+            <Row label={t('settings.keepAwake')}>
+              <Switch
+                value={settings.keepScreenAwake}
+                onValueChange={settings.setKeepScreenAwake}
+                trackColor={{ true: colors.accent, false: colors.border }}
+                thumbColor={colors.textPrimary}
+              />
+            </Row>
+            <Row label={t('settings.autoResume')}>
+              <Switch
+                value={settings.autoResumeAfterCall}
+                onValueChange={settings.setAutoResumeAfterCall}
+                trackColor={{ true: colors.accent, false: colors.border }}
+                thumbColor={colors.textPrimary}
+              />
+            </Row>
+            <Row label={t('settings.sequentialUnlock')}>
+              <Switch
+                value={settings.sequentialUnlock}
+                onValueChange={settings.setSequentialUnlock}
+                trackColor={{ true: colors.accent, false: colors.border }}
+                thumbColor={colors.textPrimary}
+              />
+            </Row>
+          </Section>
+
+          <Section title={t('settings.goal')}>
+            <View style={styles.chipRow}>
+              {[0, 3, 5, 7].map((goal) => (
+                <Chip
+                  key={goal}
+                  label={goal === 0 ? t('settings.goalOff') : t('settings.goalDays', { count: goal })}
+                  active={settings.weeklyGoal === goal}
+                  onPress={() => settings.setWeeklyGoal(goal)}
+                />
+              ))}
+            </View>
           </Section>
 
           <Section title={t('settings.premium')}>

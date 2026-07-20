@@ -183,6 +183,9 @@ export const playbackController = {
       resumeAt,
     );
     await backend.play();
+    if (Platform.OS !== 'web' && useSettings.getState().hapticsEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); // seans başı (PLAN §5.6)
+    }
     if (saved.id) startAmbience(saved.id, saved.volume);
 
     if (interval) clearInterval(interval);

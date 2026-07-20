@@ -153,7 +153,8 @@
     "premiumSee": "See plans",
     "badges": "Badges",
     "favorites": "Favorites",
-    "favoritesEmpty": "Sessions you heart in the player gather here."
+    "favoritesEmpty": "Sessions you heart in the player gather here.",
+    "goalProgress": "{{done}}/{{goal}} days this week"
   },
   "badges": {
     "ilk-adim": "First session",
@@ -187,6 +188,12 @@
     "exportData": "Export data",
     "importData": "Restore from backup",
     "importOk": "Backup restored.",
-    "importInvalid": "Invalid backup file."
+    "importInvalid": "Invalid backup file.",
+    "keepAwake": "Keep screen on during sessions",
+    "autoResume": "Auto-resume after calls",
+    "sequentialUnlock": "Unlock program days in order",
+    "goal": "WEEKLY GOAL",
+    "goalOff": "Off",
+    "goalDays": "{{count}} days a week"
   }
 }

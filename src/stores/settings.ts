@@ -16,6 +16,14 @@ type SettingsState = {
   reminder: { enabled: boolean; hour: number; minute: number };
   hapticsEnabled: boolean;
   bellEnabled: boolean;
+  /** Program günleri sırayla mı açılır? Kapalıysa tüm günler seçilebilir (PLAN §2.1). */
+  sequentialUnlock: boolean;
+  /** Seans sırasında ekranı uyanık tut (PLAN §4.3). */
+  keepScreenAwake: boolean;
+  /** Çağrı/kesinti bitince otomatik devam (PLAN §4.2). */
+  autoResumeAfterCall: boolean;
+  /** Haftalık esnek hedef (aktif gün); 0 = kapalı. */
+  weeklyGoal: number;
   /** Son seçilen ambience — sonraki seansta otomatik sürer. */
   ambience: { id: string | null; volume: number };
   reviewAsked: boolean;
@@ -26,6 +34,10 @@ type SettingsState = {
   setReminder: (reminder: { enabled: boolean; hour: number; minute: number }) => void;
   setHapticsEnabled: (enabled: boolean) => void;
   setBellEnabled: (enabled: boolean) => void;
+  setSequentialUnlock: (enabled: boolean) => void;
+  setKeepScreenAwake: (enabled: boolean) => void;
+  setAutoResumeAfterCall: (enabled: boolean) => void;
+  setWeeklyGoal: (days: number) => void;
   setAmbience: (ambience: { id: string | null; volume: number }) => void;
   setReviewAsked: () => void;
 };
@@ -40,6 +52,10 @@ export const useSettings = create<SettingsState>()(
       reminder: { enabled: false, hour: 9, minute: 0 },
       hapticsEnabled: true,
       bellEnabled: true,
+      sequentialUnlock: true,
+      keepScreenAwake: true,
+      autoResumeAfterCall: true,
+      weeklyGoal: 0,
       ambience: { id: null, volume: 0.7 },
       reviewAsked: false,
 
@@ -50,6 +66,10 @@ export const useSettings = create<SettingsState>()(
       setReminder: (reminder) => set({ reminder }),
       setHapticsEnabled: (hapticsEnabled) => set({ hapticsEnabled }),
       setBellEnabled: (bellEnabled) => set({ bellEnabled }),
+      setSequentialUnlock: (sequentialUnlock) => set({ sequentialUnlock }),
+      setKeepScreenAwake: (keepScreenAwake) => set({ keepScreenAwake }),
+      setAutoResumeAfterCall: (autoResumeAfterCall) => set({ autoResumeAfterCall }),
+      setWeeklyGoal: (weeklyGoal) => set({ weeklyGoal }),
       setAmbience: (ambience) => set({ ambience }),
       setReviewAsked: () => set({ reviewAsked: true }),
     }),

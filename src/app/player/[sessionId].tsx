@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import * as StoreReview from 'expo-store-review';
+import { useKeepAwake } from 'expo-keep-awake';
 
 import { AppText, BreathRing, Button, CoverArt, PlayRing, Screen } from '@/components';
 import {
@@ -58,6 +59,11 @@ export default function PlayerScreen() {
 
 // Ayrı bileşen: hook'lar session garanti edildikten sonra koşulsuz çalışır.
 // Oynatma sahibi controller — ekran kapansa da ses sürer (mini-player devralır).
+function KeepAwakeWhileActive() {
+  useKeepAwake(); // seans sırasında ekran kararmaz (PLAN §4.3)
+  return null;
+}
+
 function Player({ sessionKey }: { sessionKey: string }) {
   const { t } = useTranslation();
   const locale = useLocale();
@@ -107,6 +113,8 @@ function Player({ sessionKey }: { sessionKey: string }) {
 
   const uiStyle = useAnimatedStyle(() => ({ opacity: uiOpacity.value }));
 
+  const keepScreenAwake = useSettings((s) => s.keepScreenAwake);
+
   function onArtPress() {
     const now = Date.now();
     if (now - lastTap.current < 300) playbackController.toggle(); // çift dokunuş
@@ -139,6 +147,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
     <>
       <Stack.Screen options={{ presentation: 'modal', headerShown: false }} />
       <Screen>
+        {keepScreenAwake && playback.isPlaying && <KeepAwakeWhileActive />}
         <View style={styles.root} onTouchStart={poke}>
           <Animated.View style={uiStyle}>
             <Pressable
