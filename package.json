@@ -54,6 +54,7 @@
     "eslint-config-expo": "^57.0.0",
     "jest": "^29.7.0",
     "jest-expo": "^57.0.2",
+    "patch-package": "^8.0.1",
     "prettier": "^3.9.5",
     "typescript": "~6.0.3"
   },
@@ -69,7 +70,8 @@
     "content:map": "node scripts/gen-asset-map.mjs",
     "content:validate": "node scripts/validate-catalog.mjs",
     "content:ingest": "node scripts/ingest-audio.mjs",
-    "content:report": "node scripts/content-report.mjs"
+    "content:report": "node scripts/content-report.mjs",
+    "postinstall": "patch-package"
   },
   "private": true,
   "jest": {
