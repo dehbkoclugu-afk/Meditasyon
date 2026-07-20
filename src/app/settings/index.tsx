@@ -243,9 +243,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <AppText variant="caption" tone="secondary">
         {title}
       </AppText>
-      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        {children}
-      </View>
+      <View style={[styles.card, { backgroundColor: colors.surface }]}>{children}</View>
     </View>
   );
 }
@@ -298,7 +296,8 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
 const styles = StyleSheet.create({
   stack: { gap: space.lg },
   section: { gap: space.xs },
-  card: { borderRadius: radius.card, borderWidth: 1, paddingHorizontal: space.md, paddingVertical: space.xs, gap: 2 },
+  // Border yerine ton: kart zeminden yüzey rengiyle ayrışır (item 15)
+  card: { borderRadius: radius.card, paddingHorizontal: space.md, paddingVertical: space.xs, gap: 2 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

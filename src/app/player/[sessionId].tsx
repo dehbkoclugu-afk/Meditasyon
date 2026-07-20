@@ -350,6 +350,29 @@ function Player({ sessionKey }: { sessionKey: string }) {
   );
 }
 
+// Bitişte tek seferlik amber dalga: halka 0.8→1.6 büyürken söner — sessiz alkış
+function FinishWave() {
+  const { colors } = useTheme();
+  const reduced = useReducedMotion();
+  const phase = useSharedValue(0);
+  useEffect(() => {
+    if (reduced) return;
+    phase.value = withTiming(1, { duration: 1400, easing: Easing.bezier(...motion.easing) });
+    return () => cancelAnimation(phase);
+  }, [reduced, phase]);
+  const style = useAnimatedStyle(() => ({
+    opacity: 0.5 * (1 - phase.value),
+    transform: [{ scale: 0.8 + phase.value * 0.8 }],
+  }));
+  if (reduced) return null;
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[styles.finishWave, { borderColor: colors.accent }, style]}
+    />
+  );
+}
+
 function FinishView({ sessionKey, onClose }: { sessionKey: string; onClose: () => void }) {
   const { t } = useTranslation();
   const locale = useLocale();
@@ -391,7 +414,10 @@ function FinishView({ sessionKey, onClose }: { sessionKey: string; onClose: () =
       <Stack.Screen options={{ presentation: 'modal', headerShown: false }} />
       <Screen>
         <View style={styles.finish}>
-          <BreathRing size={140} />
+          <View style={styles.finishRing}>
+            <FinishWave />
+            <BreathRing size={140} />
+          </View>
           <View style={styles.finishCopy}>
             <AppText variant="display1" style={styles.centerText}>
               {programDone ? t('player.programDoneTitle') : t('player.doneTitle')}
@@ -529,4 +555,6 @@ const styles = StyleSheet.create({
   nextArt: { width: 64, height: 56 },
   nextMeta: { flex: 1, gap: 2 },
   finishCopy: { alignItems: 'center', gap: space.xs },
+  finishRing: { alignItems: 'center', justifyContent: 'center' },
+  finishWave: { position: 'absolute', width: 180, height: 180, borderRadius: 90, borderWidth: 2 },
 });
