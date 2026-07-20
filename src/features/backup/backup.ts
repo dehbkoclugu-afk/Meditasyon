@@ -89,7 +89,7 @@ export function applyBackup(raw: string): boolean {
       reminder: settings.reminder ?? { enabled: false, hour: 9, minute: 0 },
       hapticsEnabled: settings.hapticsEnabled ?? true,
       bellEnabled: settings.bellEnabled ?? true,
-      ambience: settings.ambience ?? { id: null, volume: 0.7 },
+      ambience: settings.ambience ?? { ids: [], volume: 0.7 },
     });
   }
   return true;

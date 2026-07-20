@@ -161,7 +161,8 @@
     "favorites": "Favoriler",
     "favoritesEmpty": "Player'daki kalple beğendiğin seanslar burada birikir.",
     "goalProgress": "Bu hafta {{done}}/{{goal}} gün",
-    "moodTitle": "SON 14 GÜN — NASIL HİSSETTİN"
+    "moodTitle": "SON 14 GÜN — NASIL HİSSETTİN",
+    "playAll": "Sırayla çal"
   },
   "badges": {
     "ilk-adim": "İlk seans",

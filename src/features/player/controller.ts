@@ -36,8 +36,11 @@ export type PlaybackState = {
   finished: boolean;
   sleepTimer: SleepTimerChoice;
   sleepRemainingSec: number | null;
-  ambienceId: string | null;
+  /** Aktif ambience karışımı (en çok 2 kanal). */
+  ambienceIds: string[];
   ambienceVolume: number;
+  /** Sırada bekleyen seanslar (gece rutini / sırayla çal). */
+  queue: string[];
 };
 
 export const usePlayback = create<PlaybackState>(() => ({
@@ -48,8 +51,9 @@ export const usePlayback = create<PlaybackState>(() => ({
   finished: false,
   sleepTimer: null,
   sleepRemainingSec: null,
-  ambienceId: null,
+  ambienceIds: [],
   ambienceVolume: 0.7,
+  queue: [],
 }));
 
 // Web önizleme hata ayıklama kancası (production build'lerde zararsız)
@@ -62,7 +66,7 @@ let interval: ReturnType<typeof setInterval> | null = null;
 let sleepDeadline: number | null = null;
 let fadeStep = 0;
 let completed = false;
-let ambiencePlayer: AudioPlayer | null = null;
+const ambiencePlayers = new Map<string, AudioPlayer>();
 
 function set(partial: Partial<PlaybackState>) {
   usePlayback.setState(partial);
@@ -84,18 +88,22 @@ function finalize(sessionId: string) {
 }
 
 function stopAmbience() {
-  ambiencePlayer?.remove();
-  ambiencePlayer = null;
+  for (const player of ambiencePlayers.values()) player.remove();
+  ambiencePlayers.clear();
 }
 
 function startAmbience(ambienceId: string, volume: number) {
   const asset = audioAssets[ambienceId];
-  if (asset == null) return;
+  if (asset == null || ambiencePlayers.has(ambienceId)) return;
   const player = createAudioPlayer(asset);
   player.loop = true;
   player.volume = volume;
   player.play();
-  ambiencePlayer = player;
+  ambiencePlayers.set(ambienceId, player);
+}
+
+function setAmbienceVolumes(volume: number) {
+  for (const player of ambiencePlayers.values()) player.volume = volume;
 }
 
 async function poll() {
@@ -112,11 +120,11 @@ async function poll() {
       fadeStep += 1;
       const volume = fadeVolume(fadeStep, FADE_STEPS);
       await backend.setVolume(volume);
-      if (ambiencePlayer) ambiencePlayer.volume = volume * usePlayback.getState().ambienceVolume;
+      setAmbienceVolumes(volume * usePlayback.getState().ambienceVolume);
       if (fadeStep >= FADE_STEPS) {
         await backend.pause();
         await backend.setVolume(1);
-        if (ambiencePlayer) ambiencePlayer.volume = usePlayback.getState().ambienceVolume;
+        setAmbienceVolumes(usePlayback.getState().ambienceVolume);
         sleepDeadline = null;
         fadeStep = 0;
         sleepRemainingSec = null;
@@ -130,7 +138,17 @@ async function poll() {
     (status.durationSec > 0 && status.positionSec >= status.durationSec - 0.5);
   if (finishedNow) {
     finalize(sessionId);
-    stopAmbience();
+    // Kuyruk (gece rutini): kısa bir nefeslik aradan sonra sıradaki seans
+    const { queue } = usePlayback.getState();
+    if (queue.length > 0) {
+      const [next, ...rest] = queue;
+      set({ queue: rest });
+      setTimeout(() => {
+        playbackController.start(next);
+      }, 2500);
+    } else {
+      stopAmbience();
+    }
   }
 
   set({
@@ -147,6 +165,7 @@ export const playbackController = {
   async start(sessionId: string): Promise<void> {
     const current = usePlayback.getState();
     if (current.sessionId === sessionId && !current.finished) return;
+    const pendingQueue = current.queue; // stop() kuyruğu sıfırlar — koru
     await this.stop(); // önceki seansın pozisyonunu kaydeder
 
     const session = sessionsById.get(sessionId);
@@ -165,8 +184,9 @@ export const playbackController = {
       finished: false,
       sleepTimer: null,
       sleepRemainingSec: null,
-      ambienceId: saved.id,
+      ambienceIds: saved.ids,
       ambienceVolume: saved.volume,
+      queue: pendingQueue,
     });
 
     const startPosition = useProgress.getState().sessions[sessionId]?.lastPositionSec ?? 0;
@@ -186,7 +206,7 @@ export const playbackController = {
     if (Platform.OS !== 'web' && useSettings.getState().hapticsEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); // seans başı (PLAN §5.6)
     }
-    if (saved.id) startAmbience(saved.id, saved.volume);
+    for (const ambId of saved.ids) startAmbience(ambId, saved.volume);
 
     if (interval) clearInterval(interval);
     interval = setInterval(poll, POLL_MS);
@@ -214,8 +234,17 @@ export const playbackController = {
       finished: false,
       sleepTimer: null,
       sleepRemainingSec: null,
-      ambienceId: null,
+      ambienceIds: [],
+      queue: [],
     });
+  },
+
+  /** Sırayla çal: ilk seansı başlatır, kalanlar kuyruğa girer (gece rutini). */
+  async startQueue(sessionIds: string[]): Promise<void> {
+    const [first, ...rest] = sessionIds.filter((id) => sessionsById.get(id)?.hasAudio);
+    if (!first) return;
+    await this.start(first);
+    set({ queue: rest });
   },
 
   async toggle(): Promise<void> {
@@ -241,18 +270,32 @@ export const playbackController = {
     set({ sleepTimer: choice, sleepRemainingSec: seconds });
   },
 
-  selectAmbience(ambienceId: string | null): void {
-    stopAmbience();
-    const volume = usePlayback.getState().ambienceVolume;
-    useSettings.getState().setAmbience({ id: ambienceId, volume });
-    set({ ambienceId });
-    if (ambienceId) startAmbience(ambienceId, volume);
+  /** Ambience kanalını aç/kapa — en çok 2 kanal aynı anda miksler (PLAN §2.1). */
+  toggleAmbience(ambienceId: string): void {
+    const { ambienceIds, ambienceVolume } = usePlayback.getState();
+    let next: string[];
+    if (ambienceIds.includes(ambienceId)) {
+      next = ambienceIds.filter((id) => id !== ambienceId);
+      ambiencePlayers.get(ambienceId)?.remove();
+      ambiencePlayers.delete(ambienceId);
+    } else {
+      next = [...ambienceIds, ambienceId].slice(-2); // en eskisi düşer
+      for (const id of ambienceIds) {
+        if (!next.includes(id)) {
+          ambiencePlayers.get(id)?.remove();
+          ambiencePlayers.delete(id);
+        }
+      }
+      startAmbience(ambienceId, ambienceVolume);
+    }
+    useSettings.getState().setAmbience({ ids: next, volume: ambienceVolume });
+    set({ ambienceIds: next });
   },
 
   setAmbienceVolume(volume: number): void {
-    if (ambiencePlayer) ambiencePlayer.volume = volume;
-    const id = usePlayback.getState().ambienceId;
-    useSettings.getState().setAmbience({ id, volume });
+    setAmbienceVolumes(volume);
+    const ids = usePlayback.getState().ambienceIds;
+    useSettings.getState().setAmbience({ ids, volume });
     set({ ambienceVolume: volume });
   },
 

@@ -24,8 +24,8 @@ type SettingsState = {
   autoResumeAfterCall: boolean;
   /** Haftalık esnek hedef (aktif gün); 0 = kapalı. */
   weeklyGoal: number;
-  /** Son seçilen ambience — sonraki seansta otomatik sürer. */
-  ambience: { id: string | null; volume: number };
+  /** Son seçilen ambience karışımı (en çok 2 kanal) — sonraki seansta sürer. */
+  ambience: { ids: string[]; volume: number };
   reviewAsked: boolean;
   setOnboardingDone: () => void;
   setIntents: (intents: Intent[]) => void;
@@ -38,7 +38,7 @@ type SettingsState = {
   setKeepScreenAwake: (enabled: boolean) => void;
   setAutoResumeAfterCall: (enabled: boolean) => void;
   setWeeklyGoal: (days: number) => void;
-  setAmbience: (ambience: { id: string | null; volume: number }) => void;
+  setAmbience: (ambience: { ids: string[]; volume: number }) => void;
   setReviewAsked: () => void;
 };
 
@@ -56,7 +56,7 @@ export const useSettings = create<SettingsState>()(
       keepScreenAwake: true,
       autoResumeAfterCall: true,
       weeklyGoal: 0,
-      ambience: { id: null, volume: 0.7 },
+      ambience: { ids: [], volume: 0.7 },
       reviewAsked: false,
 
       setOnboardingDone: () => set({ onboardingDone: true }),
@@ -73,6 +73,21 @@ export const useSettings = create<SettingsState>()(
       setAmbience: (ambience) => set({ ambience }),
       setReviewAsked: () => set({ reviewAsked: true }),
     }),
-    { name: 'settings', storage: createJSONStorage(() => appStorage) },
+    {
+      name: 'settings',
+      storage: createJSONStorage(() => appStorage),
+      version: 1,
+      migrate: (persisted) => {
+        // v0→v1: ambience.id (tekil) → ambience.ids (karışım)
+        const state = persisted as { ambience?: { id?: string | null; ids?: string[]; volume?: number } };
+        if (state?.ambience && !Array.isArray(state.ambience.ids)) {
+          state.ambience = {
+            ids: state.ambience.id ? [state.ambience.id] : [],
+            volume: state.ambience.volume ?? 0.7,
+          } as never;
+        }
+        return state as never;
+      },
+    },
   ),
 );

@@ -161,7 +161,8 @@
     "favorites": "Favorites",
     "favoritesEmpty": "Sessions you heart in the player gather here.",
     "goalProgress": "{{done}}/{{goal}} days this week",
-    "moodTitle": "LAST 14 DAYS — HOW YOU FELT"
+    "moodTitle": "LAST 14 DAYS — HOW YOU FELT",
+    "playAll": "Play in order"
   },
   "badges": {
     "ilk-adim": "First session",

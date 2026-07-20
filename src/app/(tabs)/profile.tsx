@@ -8,6 +8,7 @@ import { catalog, sessionsById } from '@/content/catalog';
 import { computeBadges } from '@/features/stats/badges';
 import { activeDaysThisWeek, effectiveStreak, localDateKey } from '@/features/stats/streak';
 import { useOpenSession } from '@/features/navigation';
+import { playbackController } from '@/features/player/controller';
 import { durationLabel } from '@/i18n/format';
 import { useLocale } from '@/i18n';
 import { radius, space } from '@/design/tokens';
@@ -149,7 +150,26 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        <AppText variant="display3">{t('profile.favorites')}</AppText>
+        <View style={styles.headerRow}>
+          <AppText variant="display3">{t('profile.favorites')}</AppText>
+          {favoriteSessions.filter((s) => s.hasAudio).length >= 2 && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('profile.playAll')}
+              onPress={() => {
+                const ids = favoriteSessions.filter((s) => s.hasAudio).map((s) => s.id);
+                playbackController.startQueue(ids);
+                router.push({ pathname: '/player/[sessionId]', params: { sessionId: ids[0] } });
+              }}
+              hitSlop={8}
+              style={styles.settingsLink}
+            >
+              <AppText variant="bodyMedium" tone="accent">
+                {t('profile.playAll')}
+              </AppText>
+            </Pressable>
+          )}
+        </View>
         {favoriteSessions.length === 0 ? (
           <EmptyState scene="heart" body={t('profile.favoritesEmpty')} />
         ) : (

@@ -283,7 +283,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
                 hitSlop={8}
                 style={styles.bottomButton}
               >
-                <WavesIcon color={playback.ambienceId ? colors.accent : colors.textSecondary} />
+                <WavesIcon color={playback.ambienceIds.length > 0 ? colors.accent : colors.textSecondary} />
               </Pressable>
             </View>
 
@@ -324,16 +324,12 @@ function Player({ sessionKey }: { sessionKey: string }) {
                     <Chip
                       key={a.id}
                       label={a.title[locale]}
-                      active={playback.ambienceId === a.id}
-                      onPress={() =>
-                        playbackController.selectAmbience(
-                          playback.ambienceId === a.id ? null : a.id,
-                        )
-                      }
+                      active={playback.ambienceIds.includes(a.id)}
+                      onPress={() => playbackController.toggleAmbience(a.id)}
                     />
                   ))}
                 </View>
-                {playback.ambienceId && (
+                {playback.ambienceIds.length > 0 && (
                   <View style={styles.chipRow}>
                     {VOLUME_CHOICES.map((v) => (
                       <Chip
