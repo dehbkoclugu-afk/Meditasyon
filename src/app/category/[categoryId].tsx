@@ -2,7 +2,7 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
-import { AppText, Screen, SessionCard } from '@/components';
+import { AppText, EmptyState, Screen, SessionCard } from '@/components';
 import { canAccessSession } from '@/content/access';
 import { catalog, sessionsInCategory } from '@/content/catalog';
 import { useOpenSession } from '@/features/navigation';
@@ -35,8 +35,11 @@ export default function CategoryScreen() {
       <Screen scroll>
         <View style={styles.stack}>
           <AppText variant="display1">{category.name[locale]}</AppText>
+          {category.tagline && (
+            <AppText tone="secondary">{category.tagline[locale]}</AppText>
+          )}
           {sessions.length === 0 ? (
-            <AppText tone="secondary">{t('category.empty')}</AppText>
+            <EmptyState scene="category" body={t('category.empty')} />
           ) : (
             sessions.map((session) => (
               <SessionCard

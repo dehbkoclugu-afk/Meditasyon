@@ -2,6 +2,7 @@ export { AppText } from './AppText';
 export { BreathRing, breathAnimationMode } from './BreathRing';
 export { Button } from './Button';
 export { CoverArt } from './CoverArt';
+export { EmptyState } from './EmptyState';
 export { LockBadge } from './LockBadge';
 export { PlayRing } from './PlayRing';
 export { ProgramCard } from './ProgramCard';

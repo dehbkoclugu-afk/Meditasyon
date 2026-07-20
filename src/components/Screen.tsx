@@ -42,7 +42,7 @@ export function Screen({ children, scroll = false, edgeToEdge = false }: Props) 
           contentContainerStyle={[padding, { paddingBottom: space.xxl }]}
           showsVerticalScrollIndicator={false}
         >
-          {children}
+          <View style={styles.content}>{children}</View>
         </ScrollView>
       </View>
     );
@@ -50,13 +50,15 @@ export function Screen({ children, scroll = false, edgeToEdge = false }: Props) 
   return (
     <View style={[styles.fill, { backgroundColor: colors.bg }, padding]}>
       <GrainOverlay />
-      {children}
+      <View style={[styles.fill, styles.content]}>{children}</View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  // Tablet/geniş ekran: içerik 640'ta durur, telefonda etkisiz (PLAN §1)
+  content: { width: '100%', maxWidth: 640, alignSelf: 'center' },
   grain: {
     position: 'absolute',
     top: 0,

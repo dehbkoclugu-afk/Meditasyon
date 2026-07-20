@@ -27,6 +27,8 @@ export const categorySchema = z.object({
   id: z.enum(CATEGORY_IDS),
   name: localizedText,
   order: z.number().int().nonnegative(),
+  /** Kategori sayfası tanıtım cümlesi (PLAN §6.3 cilası). */
+  tagline: localizedText.optional(),
 });
 
 export const breathPatternSchema = z.object({
@@ -51,6 +53,8 @@ export const sessionSchema = z
     access: z.enum(['free', 'premium']),
     publishedAt: isoDate,
     order: z.number().int(),
+    /** Anlatıcı kimliği — ileride çoklu ses için (PLAN §2.1). */
+    narrator: z.string().optional(),
     pattern: breathPatternSchema.optional(),
   })
   .refine((s) => s.type !== 'breathing' || s.pattern !== undefined, {

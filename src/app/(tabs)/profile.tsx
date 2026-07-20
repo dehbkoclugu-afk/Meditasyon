@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppText, PlayRing, Screen, SessionCard, StatTile } from '@/components';
+import { AppText, EmptyState, PlayRing, Screen, SessionCard, StatTile } from '@/components';
 import { canAccessSession } from '@/content/access';
 import { catalog, sessionsById } from '@/content/catalog';
 import { computeBadges } from '@/features/stats/badges';
@@ -151,9 +151,7 @@ export default function ProfileScreen() {
 
         <AppText variant="display3">{t('profile.favorites')}</AppText>
         {favoriteSessions.length === 0 ? (
-          <AppText variant="secondary" tone="secondary">
-            {t('profile.favoritesEmpty')}
-          </AppText>
+          <EmptyState scene="heart" body={t('profile.favoritesEmpty')} />
         ) : (
           favoriteSessions.map((session) => (
             <SessionCard

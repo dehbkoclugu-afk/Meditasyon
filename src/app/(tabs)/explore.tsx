@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { AppText, ProgramCard, Screen, SessionCard } from '@/components';
+import { AppText, EmptyState, ProgramCard, Screen, SessionCard } from '@/components';
 import { canAccessSession } from '@/content/access';
 import { catalog } from '@/content/catalog';
 import { useOpenSession } from '@/features/navigation';
@@ -104,12 +104,7 @@ export default function ExploreScreen() {
         {searching ? (
           <View style={styles.results}>
             {results.length === 0 ? (
-              <View style={styles.empty}>
-                <AppText variant="display3">{t('explore.noResults')}</AppText>
-                <AppText tone="secondary" variant="secondary">
-                  {t('explore.noResultsHint')}
-                </AppText>
-              </View>
+              <EmptyState scene="search" title={t('explore.noResults')} body={t('explore.noResultsHint')} />
             ) : (
               results.map((session) => (
                 <SessionCard

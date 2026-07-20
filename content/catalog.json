@@ -1,19 +1,110 @@
 {
   "version": 1,
   "categories": [
-    { "id": "uyku", "name": { "tr": "Uyku", "en": "Sleep" }, "order": 0 },
-    { "id": "stres-kaygi", "name": { "tr": "Stres ve Kaygı", "en": "Stress & Anxiety" }, "order": 1 },
-    { "id": "odak", "name": { "tr": "Odak", "en": "Focus" }, "order": 2 },
-    { "id": "sabah", "name": { "tr": "Sabah", "en": "Morning" }, "order": 3 },
-    { "id": "nefes", "name": { "tr": "Nefes", "en": "Breath" }, "order": 4 },
-    { "id": "beden-taramasi", "name": { "tr": "Beden Taraması", "en": "Body Scan" }, "order": 5 },
-    { "id": "sukran", "name": { "tr": "Şükran", "en": "Gratitude" }, "order": 6 },
-    { "id": "oz-sefkat", "name": { "tr": "Öz Şefkat", "en": "Self-Compassion" }, "order": 7 }
+    {
+      "id": "uyku",
+      "name": {
+        "tr": "Uyku",
+        "en": "Sleep"
+      },
+      "order": 0,
+      "tagline": {
+        "tr": "Günü bırak, gece seni taşısın.",
+        "en": "Let go of the day; let the night carry you."
+      }
+    },
+    {
+      "id": "stres-kaygi",
+      "name": {
+        "tr": "Stres ve Kaygı",
+        "en": "Stress & Anxiety"
+      },
+      "order": 1,
+      "tagline": {
+        "tr": "Zor anlar için sığınak seanslar.",
+        "en": "Refuge sessions for hard moments."
+      }
+    },
+    {
+      "id": "odak",
+      "name": {
+        "tr": "Odak",
+        "en": "Focus"
+      },
+      "order": 2,
+      "tagline": {
+        "tr": "Dağınık zihinden tek işe.",
+        "en": "From scattered mind to a single task."
+      }
+    },
+    {
+      "id": "sabah",
+      "name": {
+        "tr": "Sabah",
+        "en": "Morning"
+      },
+      "order": 3,
+      "tagline": {
+        "tr": "Güne niyetle, aceleye kapılmadan başla.",
+        "en": "Begin the day with intention, not haste."
+      }
+    },
+    {
+      "id": "nefes",
+      "name": {
+        "tr": "Nefes",
+        "en": "Breath"
+      },
+      "order": 4,
+      "tagline": {
+        "tr": "En kısa yol: dört say al, altı say ver.",
+        "en": "The shortest path: in for four, out for six."
+      }
+    },
+    {
+      "id": "beden-taramasi",
+      "name": {
+        "tr": "Beden Taraması",
+        "en": "Body Scan"
+      },
+      "order": 5,
+      "tagline": {
+        "tr": "Bedenin bugün ne söylüyor?",
+        "en": "What is your body saying today?"
+      }
+    },
+    {
+      "id": "sukran",
+      "name": {
+        "tr": "Şükran",
+        "en": "Gratitude"
+      },
+      "order": 6,
+      "tagline": {
+        "tr": "Sıradan mucizeleri fark etme pratiği.",
+        "en": "Noticing ordinary miracles."
+      }
+    },
+    {
+      "id": "oz-sefkat",
+      "name": {
+        "tr": "Öz Şefkat",
+        "en": "Self-Compassion"
+      },
+      "order": 7,
+      "tagline": {
+        "tr": "Bir dosta davrandığın gibi kendine davran.",
+        "en": "Treat yourself like a friend."
+      }
+    }
   ],
   "programs": [
     {
       "id": "baslangic",
-      "title": { "tr": "Başlangıç", "en": "Foundations" },
+      "title": {
+        "tr": "Başlangıç",
+        "en": "Foundations"
+      },
       "description": {
         "tr": "Meditasyona yedi günde yumuşak bir giriş. Her gün 8–10 dakika: nefes, beden, düşünceler ve duygularla tanışma.",
         "en": "A gentle seven-day introduction to meditation. 8–10 minutes a day: meeting your breath, body, thoughts and feelings."
@@ -34,12 +125,17 @@
     {
       "id": "baslangic-gun-1",
       "type": "guided",
-      "title": { "tr": "Nefesi Fark Et", "en": "Noticing the Breath" },
+      "title": {
+        "tr": "Nefesi Fark Et",
+        "en": "Noticing the Breath"
+      },
       "description": {
         "tr": "İlk adım: hiçbir şeyi değiştirmeden, nefesin geliş gidişini izlemek.",
         "en": "The first step: watching the breath come and go, without changing anything."
       },
-      "categories": ["nefes"],
+      "categories": [
+        "nefes"
+      ],
       "durationSec": 480,
       "hasAudio": true,
       "access": "free",
@@ -49,12 +145,17 @@
     {
       "id": "baslangic-gun-2",
       "type": "guided",
-      "title": { "tr": "Bedenin Dili", "en": "The Body's Language" },
+      "title": {
+        "tr": "Bedenin Dili",
+        "en": "The Body's Language"
+      },
       "description": {
         "tr": "Bedenin bugün ne söylediğini dinle: gerginlikler, rahat alanlar, ağırlık.",
         "en": "Listen to what your body is saying today: tensions, ease, weight."
       },
-      "categories": ["beden-taramasi"],
+      "categories": [
+        "beden-taramasi"
+      ],
       "durationSec": 480,
       "hasAudio": true,
       "access": "free",
@@ -64,12 +165,17 @@
     {
       "id": "baslangic-gun-3",
       "type": "guided",
-      "title": { "tr": "Düşünce Bulutları", "en": "Clouds of Thought" },
+      "title": {
+        "tr": "Düşünce Bulutları",
+        "en": "Clouds of Thought"
+      },
       "description": {
         "tr": "Düşünceleri gökyüzünden geçen bulutlar gibi izlemeyi dene — tutmadan, kovalamadan.",
         "en": "Try watching thoughts like clouds crossing the sky — without holding on, without chasing."
       },
-      "categories": ["odak"],
+      "categories": [
+        "odak"
+      ],
       "durationSec": 540,
       "hasAudio": true,
       "access": "free",
@@ -79,12 +185,17 @@
     {
       "id": "baslangic-gun-4",
       "type": "guided",
-      "title": { "tr": "Sesleri Dinle", "en": "Listening to Sounds" },
+      "title": {
+        "tr": "Sesleri Dinle",
+        "en": "Listening to Sounds"
+      },
       "description": {
         "tr": "Yakın ve uzak sesleri yargılamadan duymak: dikkatin çapasını genişletme günü.",
         "en": "Hearing near and far sounds without judgment: a day for widening attention's anchor."
       },
-      "categories": ["odak"],
+      "categories": [
+        "odak"
+      ],
       "durationSec": 540,
       "hasAudio": true,
       "access": "free",
@@ -94,12 +205,17 @@
     {
       "id": "baslangic-gun-5",
       "type": "guided",
-      "title": { "tr": "Duygulara Yer Aç", "en": "Making Room for Feelings" },
+      "title": {
+        "tr": "Duygulara Yer Aç",
+        "en": "Making Room for Feelings"
+      },
       "description": {
         "tr": "Hoş ya da nahoş — bugün gelen duyguya bedende küçük bir yer açıyoruz.",
         "en": "Pleasant or not — today we make a little room in the body for whatever feeling arrives."
       },
-      "categories": ["oz-sefkat"],
+      "categories": [
+        "oz-sefkat"
+      ],
       "durationSec": 600,
       "hasAudio": true,
       "access": "free",
@@ -109,12 +225,17 @@
     {
       "id": "baslangic-gun-6",
       "type": "guided",
-      "title": { "tr": "Şimdi ve Burada", "en": "Here and Now" },
+      "title": {
+        "tr": "Şimdi ve Burada",
+        "en": "Here and Now"
+      },
       "description": {
         "tr": "Geçmiş ve gelecek arasında gidip gelen zihni nazikçe şimdiye çağırma pratiği.",
         "en": "A practice of gently inviting the mind back to now, from its wandering between past and future."
       },
-      "categories": ["odak"],
+      "categories": [
+        "odak"
+      ],
       "durationSec": 600,
       "hasAudio": true,
       "access": "free",
@@ -124,12 +245,17 @@
     {
       "id": "baslangic-gun-7",
       "type": "guided",
-      "title": { "tr": "Kendi Ritmin", "en": "Your Own Rhythm" },
+      "title": {
+        "tr": "Kendi Ritmin",
+        "en": "Your Own Rhythm"
+      },
       "description": {
         "tr": "Yedinci gün: öğrendiklerini birleştir, kendi pratiğinin ritmini bul.",
         "en": "Day seven: bring it all together and find the rhythm of your own practice."
       },
-      "categories": ["oz-sefkat"],
+      "categories": [
+        "oz-sefkat"
+      ],
       "durationSec": 600,
       "hasAudio": true,
       "access": "free",
@@ -139,12 +265,17 @@
     {
       "id": "uykuya-yumusak-gecis",
       "type": "guided",
-      "title": { "tr": "Uykuya Yumuşak Geçiş", "en": "A Soft Landing into Sleep" },
+      "title": {
+        "tr": "Uykuya Yumuşak Geçiş",
+        "en": "A Soft Landing into Sleep"
+      },
       "description": {
         "tr": "Günü bırakmak ve bedeni uykuya hazırlamak için yavaşlayan bir yolculuk.",
         "en": "A slowing journey to let go of the day and prepare the body for sleep."
       },
-      "categories": ["uyku"],
+      "categories": [
+        "uyku"
+      ],
       "durationSec": 900,
       "hasAudio": true,
       "access": "free",
@@ -154,12 +285,17 @@
     {
       "id": "gece-dusunceleri-birakma",
       "type": "guided",
-      "title": { "tr": "Gece Düşüncelerini Bırakma", "en": "Releasing Nighttime Thoughts" },
+      "title": {
+        "tr": "Gece Düşüncelerini Bırakma",
+        "en": "Releasing Nighttime Thoughts"
+      },
       "description": {
         "tr": "Yatakta dönüp duran zihin için: düşünceleri yarına emanet etme pratiği.",
         "en": "For the mind that spins in bed: a practice of entrusting thoughts to tomorrow."
       },
-      "categories": ["uyku"],
+      "categories": [
+        "uyku"
+      ],
       "durationSec": 720,
       "hasAudio": true,
       "access": "premium",
@@ -169,12 +305,17 @@
     {
       "id": "derin-uyku-yolculugu",
       "type": "guided",
-      "title": { "tr": "Derin Uyku Yolculuğu", "en": "Journey into Deep Sleep" },
+      "title": {
+        "tr": "Derin Uyku Yolculuğu",
+        "en": "Journey into Deep Sleep"
+      },
       "description": {
         "tr": "Uzun ve yavaş bir gevşeme: nefes, beden ve hayal gücüyle uykunun derinine.",
         "en": "A long, slow release: into deep sleep through breath, body and imagination."
       },
-      "categories": ["uyku"],
+      "categories": [
+        "uyku"
+      ],
       "durationSec": 1200,
       "hasAudio": true,
       "access": "premium",
@@ -184,12 +325,17 @@
     {
       "id": "ani-stres-molasi",
       "type": "guided",
-      "title": { "tr": "Ani Stres Molası", "en": "Instant Stress Break" },
+      "title": {
+        "tr": "Ani Stres Molası",
+        "en": "Instant Stress Break"
+      },
       "description": {
         "tr": "Zor bir anın ortasında beş dakikalık sığınak: nefes ve yere basma.",
         "en": "A five-minute refuge in the middle of a hard moment: breath and grounding."
       },
-      "categories": ["stres-kaygi"],
+      "categories": [
+        "stres-kaygi"
+      ],
       "durationSec": 300,
       "hasAudio": true,
       "access": "free",
@@ -199,12 +345,17 @@
     {
       "id": "kaygiyi-gozlemle",
       "type": "guided",
-      "title": { "tr": "Kaygıyı Gözlemle", "en": "Observing Anxiety" },
+      "title": {
+        "tr": "Kaygıyı Gözlemle",
+        "en": "Observing Anxiety"
+      },
       "description": {
         "tr": "Kaygının bedendeki izini merakla incelemek — onunla savaşmadan.",
         "en": "Examining anxiety's trace in the body with curiosity — without fighting it."
       },
-      "categories": ["stres-kaygi"],
+      "categories": [
+        "stres-kaygi"
+      ],
       "durationSec": 720,
       "hasAudio": true,
       "access": "premium",
@@ -214,12 +365,18 @@
     {
       "id": "omuzlardaki-yuk",
       "type": "guided",
-      "title": { "tr": "Omuzlardaki Yük", "en": "The Weight on Your Shoulders" },
+      "title": {
+        "tr": "Omuzlardaki Yük",
+        "en": "The Weight on Your Shoulders"
+      },
       "description": {
         "tr": "Boyun, omuz ve çenede biriken gerginliği fark edip bırakma pratiği.",
         "en": "Noticing and releasing the tension gathered in neck, shoulders and jaw."
       },
-      "categories": ["stres-kaygi", "beden-taramasi"],
+      "categories": [
+        "stres-kaygi",
+        "beden-taramasi"
+      ],
       "durationSec": 600,
       "hasAudio": true,
       "access": "premium",
@@ -229,12 +386,17 @@
     {
       "id": "ise-baslama-odagi",
       "type": "guided",
-      "title": { "tr": "İşe Başlama Odağı", "en": "Focus to Start Work" },
+      "title": {
+        "tr": "İşe Başlama Odağı",
+        "en": "Focus to Start Work"
+      },
       "description": {
         "tr": "Dağınık bir zihinden tek bir işe geçiş için kısa hazırlık.",
         "en": "A short preparation for moving from a scattered mind to a single task."
       },
-      "categories": ["odak"],
+      "categories": [
+        "odak"
+      ],
       "durationSec": 480,
       "hasAudio": true,
       "access": "free",
@@ -244,12 +406,17 @@
     {
       "id": "tek-nokta-odak",
       "type": "guided",
-      "title": { "tr": "Tek Nokta Odak", "en": "Single-Point Focus" },
+      "title": {
+        "tr": "Tek Nokta Odak",
+        "en": "Single-Point Focus"
+      },
       "description": {
         "tr": "Dikkati tek bir çapada tutma antrenmanı: nefes ucundaki his.",
         "en": "Training attention on a single anchor: the sensation at the tip of the breath."
       },
-      "categories": ["odak"],
+      "categories": [
+        "odak"
+      ],
       "durationSec": 600,
       "hasAudio": true,
       "access": "premium",
@@ -259,12 +426,17 @@
     {
       "id": "zihinsel-netlik",
       "type": "guided",
-      "title": { "tr": "Zihinsel Netlik", "en": "Mental Clarity" },
+      "title": {
+        "tr": "Zihinsel Netlik",
+        "en": "Mental Clarity"
+      },
       "description": {
         "tr": "Yoğun bir günün ortasında zihni durultan on iki dakikalık ara.",
         "en": "A twelve-minute pause that settles the mind in the middle of a dense day."
       },
-      "categories": ["odak"],
+      "categories": [
+        "odak"
+      ],
       "durationSec": 720,
       "hasAudio": true,
       "access": "premium",
@@ -274,12 +446,17 @@
     {
       "id": "gune-niyetle-basla",
       "type": "guided",
-      "title": { "tr": "Güne Niyetle Başla", "en": "Begin the Day with Intention" },
+      "title": {
+        "tr": "Güne Niyetle Başla",
+        "en": "Begin the Day with Intention"
+      },
       "description": {
         "tr": "Kahveden önce sekiz dakika: bugünün niyetini seçmek.",
         "en": "Eight minutes before coffee: choosing today's intention."
       },
-      "categories": ["sabah"],
+      "categories": [
+        "sabah"
+      ],
       "durationSec": 480,
       "hasAudio": true,
       "access": "free",
@@ -289,12 +466,17 @@
     {
       "id": "sabah-enerjisi",
       "type": "guided",
-      "title": { "tr": "Sabah Enerjisi", "en": "Morning Energy" },
+      "title": {
+        "tr": "Sabah Enerjisi",
+        "en": "Morning Energy"
+      },
       "description": {
         "tr": "Nefes ve hafif farkındalıkla bedeni nazikçe uyandıran pratik.",
         "en": "A practice that gently wakes the body with breath and light awareness."
       },
-      "categories": ["sabah"],
+      "categories": [
+        "sabah"
+      ],
       "durationSec": 600,
       "hasAudio": true,
       "access": "premium",
@@ -304,12 +486,17 @@
     {
       "id": "hizli-beden-taramasi",
       "type": "guided",
-      "title": { "tr": "Hızlı Beden Taraması", "en": "Quick Body Scan" },
+      "title": {
+        "tr": "Hızlı Beden Taraması",
+        "en": "Quick Body Scan"
+      },
       "description": {
         "tr": "On dakikada tepeden tırnağa: bedenle yeniden bağlantı.",
         "en": "Head to toe in ten minutes: reconnecting with the body."
       },
-      "categories": ["beden-taramasi"],
+      "categories": [
+        "beden-taramasi"
+      ],
       "durationSec": 600,
       "hasAudio": true,
       "access": "free",
@@ -319,12 +506,17 @@
     {
       "id": "tepeden-tirnaga",
       "type": "guided",
-      "title": { "tr": "Tepeden Tırnağa", "en": "Head to Toe" },
+      "title": {
+        "tr": "Tepeden Tırnağa",
+        "en": "Head to Toe"
+      },
       "description": {
         "tr": "Uzun ve yavaş beden taraması: her bölgeye nefesle uğrayarak.",
         "en": "A long, slow body scan: visiting each region with the breath."
       },
-      "categories": ["beden-taramasi"],
+      "categories": [
+        "beden-taramasi"
+      ],
       "durationSec": 1200,
       "hasAudio": true,
       "access": "premium",
@@ -334,12 +526,17 @@
     {
       "id": "uc-guzel-sey",
       "type": "guided",
-      "title": { "tr": "Üç Güzel Şey", "en": "Three Good Things" },
+      "title": {
+        "tr": "Üç Güzel Şey",
+        "en": "Three Good Things"
+      },
       "description": {
         "tr": "Günün içinden üç küçük iyiliği bulup onlarla kalma pratiği.",
         "en": "Finding three small good things from the day and staying with them."
       },
-      "categories": ["sukran"],
+      "categories": [
+        "sukran"
+      ],
       "durationSec": 480,
       "hasAudio": true,
       "access": "free",
@@ -349,12 +546,17 @@
     {
       "id": "sukran-gunlugu",
       "type": "guided",
-      "title": { "tr": "Şükran Günlüğü", "en": "Gratitude Journal" },
+      "title": {
+        "tr": "Şükran Günlüğü",
+        "en": "Gratitude Journal"
+      },
       "description": {
         "tr": "Zihinde tutulan bir şükran günlüğü: insanlar, anlar, sıradan mucizeler.",
         "en": "A gratitude journal kept in the mind: people, moments, ordinary miracles."
       },
-      "categories": ["sukran"],
+      "categories": [
+        "sukran"
+      ],
       "durationSec": 600,
       "hasAudio": true,
       "access": "premium",
@@ -364,12 +566,17 @@
     {
       "id": "kendine-nazik-ol",
       "type": "guided",
-      "title": { "tr": "Kendine Nazik Ol", "en": "Be Kind to Yourself" },
+      "title": {
+        "tr": "Kendine Nazik Ol",
+        "en": "Be Kind to Yourself"
+      },
       "description": {
         "tr": "Bir dosta gösterdiğin şefkati kendine yöneltme pratiği.",
         "en": "Turning the kindness you show a friend toward yourself."
       },
-      "categories": ["oz-sefkat"],
+      "categories": [
+        "oz-sefkat"
+      ],
       "durationSec": 600,
       "hasAudio": true,
       "access": "free",
@@ -379,12 +586,17 @@
     {
       "id": "ic-elestirmenle-baris",
       "type": "guided",
-      "title": { "tr": "İç Eleştirmenle Barış", "en": "Peace with the Inner Critic" },
+      "title": {
+        "tr": "İç Eleştirmenle Barış",
+        "en": "Peace with the Inner Critic"
+      },
       "description": {
         "tr": "İçindeki sert sesi tanıma ve ona yumuşaklıkla cevap verme çalışması.",
         "en": "Recognising the harsh inner voice and answering it with softness."
       },
-      "categories": ["oz-sefkat"],
+      "categories": [
+        "oz-sefkat"
+      ],
       "durationSec": 720,
       "hasAudio": true,
       "access": "premium",
@@ -394,12 +606,17 @@
     {
       "id": "eski-sahil-kasabasi",
       "type": "sleep_story",
-      "title": { "tr": "Eski Sahil Kasabası", "en": "The Old Seaside Town" },
+      "title": {
+        "tr": "Eski Sahil Kasabası",
+        "en": "The Old Seaside Town"
+      },
       "description": {
         "tr": "Akşam ışığında sessiz bir sahil kasabasında yavaş bir yürüyüş — uykuya dalmak için anlatılmış bir hikâye.",
         "en": "A slow evening walk through a quiet seaside town — a story told for falling asleep."
       },
-      "categories": ["uyku"],
+      "categories": [
+        "uyku"
+      ],
       "durationSec": 1500,
       "hasAudio": true,
       "access": "free",
@@ -409,12 +626,17 @@
     {
       "id": "yagmurlu-orman-evi",
       "type": "sleep_story",
-      "title": { "tr": "Yağmurlu Orman Evi", "en": "The Rainy Forest Cabin" },
+      "title": {
+        "tr": "Yağmurlu Orman Evi",
+        "en": "The Rainy Forest Cabin"
+      },
       "description": {
         "tr": "Yağmurun çatıya vurduğu bir orman evinde geçen, gittikçe yavaşlayan bir gece hikâyesi.",
         "en": "A night story set in a forest cabin under the rain, slowing as it goes."
       },
-      "categories": ["uyku"],
+      "categories": [
+        "uyku"
+      ],
       "durationSec": 1800,
       "hasAudio": true,
       "access": "premium",
@@ -424,57 +646,122 @@
     {
       "id": "kutu-nefesi",
       "type": "breathing",
-      "title": { "tr": "Kutu Nefesi", "en": "Box Breathing" },
+      "title": {
+        "tr": "Kutu Nefesi",
+        "en": "Box Breathing"
+      },
       "description": {
         "tr": "4-4-4-4: eşit sayımlarla sakinleşen sinir sistemi. Zor anlar için.",
         "en": "4-4-4-4: a nervous system calmed by equal counts. For hard moments."
       },
-      "categories": ["nefes"],
+      "categories": [
+        "nefes"
+      ],
       "durationSec": 180,
       "hasAudio": false,
       "access": "free",
       "publishedAt": "2026-07-18",
       "order": 90,
-      "pattern": { "inhale": 4, "hold": 4, "exhale": 4, "holdEmpty": 4, "cycles": 10 }
+      "pattern": {
+        "inhale": 4,
+        "hold": 4,
+        "exhale": 4,
+        "holdEmpty": 4,
+        "cycles": 10
+      }
     },
     {
       "id": "dort-yedi-sekiz",
       "type": "breathing",
-      "title": { "tr": "4-7-8 Nefesi", "en": "4-7-8 Breath" },
+      "title": {
+        "tr": "4-7-8 Nefesi",
+        "en": "4-7-8 Breath"
+      },
       "description": {
         "tr": "Uzun verişle gevşeme: uykudan önce veya gergin anlarda.",
         "en": "Relaxing through a long exhale: before sleep or in tense moments."
       },
-      "categories": ["nefes", "uyku"],
+      "categories": [
+        "nefes",
+        "uyku"
+      ],
       "durationSec": 180,
       "hasAudio": false,
       "access": "free",
       "publishedAt": "2026-07-18",
       "order": 91,
-      "pattern": { "inhale": 4, "hold": 7, "exhale": 8, "holdEmpty": 0, "cycles": 6 }
+      "pattern": {
+        "inhale": 4,
+        "hold": 7,
+        "exhale": 8,
+        "holdEmpty": 0,
+        "cycles": 6
+      }
     },
     {
       "id": "sakinlesme-nefesi",
       "type": "breathing",
-      "title": { "tr": "Sakinleşme Nefesi", "en": "Calming Breath" },
+      "title": {
+        "tr": "Sakinleşme Nefesi",
+        "en": "Calming Breath"
+      },
       "description": {
         "tr": "4 al, 6 ver: verişi uzatarak bedene 'güvendesin' mesajı.",
         "en": "In for 4, out for 6: a longer exhale that tells the body it's safe."
       },
-      "categories": ["nefes", "stres-kaygi"],
+      "categories": [
+        "nefes",
+        "stres-kaygi"
+      ],
       "durationSec": 180,
       "hasAudio": false,
       "access": "free",
       "publishedAt": "2026-07-18",
       "order": 92,
-      "pattern": { "inhale": 4, "hold": 0, "exhale": 6, "holdEmpty": 0, "cycles": 10 }
+      "pattern": {
+        "inhale": 4,
+        "hold": 0,
+        "exhale": 6,
+        "holdEmpty": 0,
+        "cycles": 10
+      }
     }
   ],
   "ambiences": [
-    { "id": "amb-yagmur", "title": { "tr": "Yağmur", "en": "Rain" } },
-    { "id": "amb-orman-sabahi", "title": { "tr": "Orman Sabahı", "en": "Forest Morning" } },
-    { "id": "amb-deniz-dalgalari", "title": { "tr": "Deniz Dalgaları", "en": "Ocean Waves" } },
-    { "id": "amb-beyaz-gurultu", "title": { "tr": "Beyaz Gürültü", "en": "White Noise" } },
-    { "id": "amb-gece-circirlari", "title": { "tr": "Gece Cırcırları", "en": "Night Crickets" } }
+    {
+      "id": "amb-yagmur",
+      "title": {
+        "tr": "Yağmur",
+        "en": "Rain"
+      }
+    },
+    {
+      "id": "amb-orman-sabahi",
+      "title": {
+        "tr": "Orman Sabahı",
+        "en": "Forest Morning"
+      }
+    },
+    {
+      "id": "amb-deniz-dalgalari",
+      "title": {
+        "tr": "Deniz Dalgaları",
+        "en": "Ocean Waves"
+      }
+    },
+    {
+      "id": "amb-beyaz-gurultu",
+      "title": {
+        "tr": "Beyaz Gürültü",
+        "en": "White Noise"
+      }
+    },
+    {
+      "id": "amb-gece-circirlari",
+      "title": {
+        "tr": "Gece Cırcırları",
+        "en": "Night Crickets"
+      }
+    }
   ]
 }
