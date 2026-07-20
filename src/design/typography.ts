@@ -43,6 +43,19 @@ export const textVariants = {
     fontSize: type.size.caption,
     lineHeight: 18,
   },
+  // Alıntı ve niyet metinleri: italik Fraunces — insani, el yazısına yakın his.
+  quote: {
+    fontFamily: fonts.displayItalic,
+    fontSize: type.size.display3,
+    lineHeight: 30,
+    letterSpacing: -0.2,
+  },
+  // Selamlama alt satırı gibi kısa italik vurgular.
+  quoteSmall: {
+    fontFamily: fonts.displayItalic,
+    fontSize: type.size.body,
+    lineHeight: 24,
+  },
   // Süre ve istatistik rakamları: tabular, hizalı — display font değil.
   numeral: {
     fontFamily: fonts.bodyBold,

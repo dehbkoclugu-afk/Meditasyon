@@ -18,7 +18,13 @@
     "sabah": "Günaydın",
     "gunduz": "İyi günler",
     "aksam": "İyi akşamlar",
-    "gece": "İyi geceler"
+    "gece": "İyi geceler",
+    "sub": {
+      "sabah": "Güne bir nefesle başla.",
+      "gunduz": "Kısa bir mola iyi gelir.",
+      "aksam": "Günü yavaşça bırak.",
+      "gece": "Zihnini uykuya hazırla."
+    }
   },
   "today": {
     "heroToday": "Bugünün önerisi",

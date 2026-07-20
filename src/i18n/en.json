@@ -18,7 +18,13 @@
     "sabah": "Good morning",
     "gunduz": "Good afternoon",
     "aksam": "Good evening",
-    "gece": "Good night"
+    "gece": "Good night",
+    "sub": {
+      "sabah": "Begin the day with one breath.",
+      "gunduz": "A short pause does good.",
+      "aksam": "Let the day go, slowly.",
+      "gece": "Ease your mind toward sleep."
+    }
   },
   "today": {
     "heroToday": "Today's pick",

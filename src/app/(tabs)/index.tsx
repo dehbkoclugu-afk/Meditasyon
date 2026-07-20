@@ -1,6 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Animated, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Reanimated, { FadeInUp, ReduceMotion, useReducedMotion } from 'react-native-reanimated';
 
 import { AppText, CoverArt, LockBadge, Screen } from '@/components';
 import { FlameIcon } from '@/components/icons';
@@ -13,12 +15,18 @@ import { recommendForToday } from '@/features/today/recommendation';
 import { useOpenSession } from '@/features/navigation';
 import { dayPartForHour, durationLabel, upperFor } from '@/i18n/format';
 import { useLocale } from '@/i18n';
-import { radius, space } from '@/design/tokens';
+import { categoryColors, motion, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { usePremium } from '@/stores/premium';
 import { useStats } from '@/stores/stats';
 import { useProgress } from '@/stores/progress';
 import { useSettings } from '@/stores/settings';
+
+// Giriş sıralaması: bloklar 60 ms arayla yukarı süzülür (reduced-motion'da kapalı)
+const enter = (order: number) =>
+  FadeInUp.duration(motion.slow)
+    .delay(order * 60)
+    .reduceMotion(ReduceMotion.System);
 
 export default function TodayScreen() {
   const { t } = useTranslation();
@@ -31,8 +39,18 @@ export default function TodayScreen() {
   const sessionProgress = useProgress((s) => s.sessions);
   const intents = useSettings((s) => s.intents);
   const stats = useStats();
+  const reducedMotion = useReducedMotion();
+
+  // Hero paralaksı: kapak, kaydırmanın ~%30'u hızında geride kalır
+  const [scrollY] = useState(() => new Animated.Value(0));
+  const heroShift = scrollY.interpolate({
+    inputRange: [0, 240],
+    outputRange: [0, 20],
+    extrapolate: 'clamp',
+  });
 
   const hour = new Date().getHours();
+  const dayPart = dayPartForHour(hour);
   const todayKey = localDateKey(new Date());
   const streak = effectiveStreak(stats.streak, todayKey);
   const todayMinutes = stats.dayMinutes[todayKey] ?? 0;
@@ -54,92 +72,142 @@ export default function TodayScreen() {
       : rec.kind === 'program-start'
         ? t('today.heroStart')
         : t('today.heroToday');
+  const heroTint = categoryColors[rec.session.categories[0]];
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      onScroll={
+        reducedMotion
+          ? undefined
+          : Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+              useNativeDriver: Platform.OS !== 'web',
+            })
+      }
+    >
       <View style={styles.stack}>
-        {/* Başlık: selamlama + streak alevi + bugünkü dakika (PLAN §6.2) */}
-        <View style={styles.headerRow}>
-          <AppText variant="display1" style={styles.headerTitle}>
-            {t(`greeting.${dayPartForHour(hour)}`)}
-          </AppText>
-          {(streak > 0 || todayMinutes > 0) && (
-            <View
-              style={[styles.statPill, { backgroundColor: colors.surface, borderColor: colors.border }]}
-              accessibilityLabel={`${streak} ${t('profile.streak')}, ${todayMinutes} ${t('profile.totalMinutes')}`}
-            >
-              <FlameIcon color={streak > 0 ? colors.accent : colors.textSecondary} size={18} />
-              <AppText variant="caption" style={{ fontVariant: ['tabular-nums'] }}>
-                {streak}
-              </AppText>
-              {todayMinutes > 0 && (
-                <AppText variant="caption" tone="secondary" style={{ fontVariant: ['tabular-nums'] }}>
-                  · {t('player.minutes', { count: todayMinutes })}
+        {/* Başlık: selamlama + alt satır + streak alevi + bugünkü dakika (PLAN §6.2) */}
+        <Reanimated.View entering={enter(0)}>
+          <View style={styles.headerRow}>
+            <AppText variant="display1" style={styles.headerTitle}>
+              {t(`greeting.${dayPart}`)}
+            </AppText>
+            {(streak > 0 || todayMinutes > 0) && (
+              <View
+                style={[styles.statPill, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                accessibilityLabel={`${streak} ${t('profile.streak')}, ${todayMinutes} ${t('profile.totalMinutes')}`}
+              >
+                <FlameIcon color={streak > 0 ? colors.accent : colors.textSecondary} size={18} />
+                <AppText variant="caption" style={{ fontVariant: ['tabular-nums'] }}>
+                  {streak}
                 </AppText>
-              )}
-            </View>
-          )}
-        </View>
+                {todayMinutes > 0 && (
+                  <AppText variant="caption" tone="secondary" style={{ fontVariant: ['tabular-nums'] }}>
+                    · {t('player.minutes', { count: todayMinutes })}
+                  </AppText>
+                )}
+              </View>
+            )}
+          </View>
+          <AppText variant="quoteSmall" tone="secondary">
+            {t(`greeting.sub.${dayPart}`)}
+          </AppText>
+        </Reanimated.View>
 
         {/* Hero: günün önerisi — ekranın tek birincil eylemi */}
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`${heroLabel}: ${rec.session.title[locale]}, ${durationLabel(rec.session.durationSec, locale)}`}
-          onPress={() => openSession(rec.session)}
-          style={({ pressed }) => [
-            styles.hero,
-            { backgroundColor: colors.surface, borderColor: colors.border },
-            pressed && styles.pressed,
-          ]}
-        >
-          <CoverArt seed={rec.session.id} categoryId={rec.session.categories[0]} height={148} kind={rec.session.type} />
-          <View style={styles.heroMeta}>
-            <AppText variant="caption" tone="accent">
-              {upperFor(heroLabel, locale)}
-            </AppText>
-            <AppText variant="display2">{rec.session.title[locale]}</AppText>
-            <AppText variant="secondary" tone="secondary" numberOfLines={2}>
-              {rec.session.description[locale]}
-            </AppText>
-            <AppText variant="secondary" tone="secondary">
-              {durationLabel(rec.session.durationSec, locale)}
-            </AppText>
-          </View>
-        </Pressable>
-
-        {/* Günün niyeti */}
-        <View style={[styles.quoteCard, { borderColor: colors.border }]}>
-          <AppText variant="display3" style={styles.quoteText}>
-            {quote[locale]}
-          </AppText>
-        </View>
-
-        {/* Kategori kısayolları */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          {catalog.categories.map((category) => (
+        <Reanimated.View entering={enter(1)}>
+          <View style={styles.heroWrap}>
+            {/* Kapağın soluk kopyası kartın arkasında hale gibi taşar */}
+            <View pointerEvents="none" accessibilityElementsHidden style={styles.heroGlow}>
+              <CoverArt
+                seed={rec.session.id}
+                categoryId={rec.session.categories[0]}
+                height={160}
+                kind={rec.session.type}
+              />
+            </View>
             <Pressable
-              key={category.id}
               accessibilityRole="button"
-              accessibilityLabel={category.name[locale]}
-              onPress={() =>
-                router.push({ pathname: '/category/[categoryId]', params: { categoryId: category.id } })
-              }
+              accessibilityLabel={`${heroLabel}: ${rec.session.title[locale]}, ${durationLabel(rec.session.durationSec, locale)}`}
+              onPress={() => openSession(rec.session)}
               style={({ pressed }) => [
-                styles.chip,
+                styles.hero,
                 { backgroundColor: colors.surface, borderColor: colors.border },
                 pressed && styles.pressed,
               ]}
             >
-              <AppText variant="secondary">{category.name[locale]}</AppText>
+              <View style={styles.heroArtClip}>
+                <Animated.View
+                  style={
+                    reducedMotion ? styles.heroArtInner : [styles.heroArtInner, { transform: [{ translateY: heroShift }] }]
+                  }
+                >
+                  <CoverArt
+                    seed={rec.session.id}
+                    categoryId={rec.session.categories[0]}
+                    height={188}
+                    kind={rec.session.type}
+                  />
+                </Animated.View>
+              </View>
+              {/* Kategori tonu: kartı seansın rengiyle hafifçe ısıtır */}
+              <View pointerEvents="none" style={[styles.heroTint, { backgroundColor: `${heroTint}12` }]} />
+              <View style={styles.heroMeta}>
+                <AppText variant="caption" tone="accent">
+                  {upperFor(heroLabel, locale)}
+                </AppText>
+                <AppText variant="display2">{rec.session.title[locale]}</AppText>
+                <AppText variant="secondary" tone="secondary" numberOfLines={2}>
+                  {rec.session.description[locale]}
+                </AppText>
+                <AppText variant="secondary" tone="accent" style={styles.tabular}>
+                  {durationLabel(rec.session.durationSec, locale)}
+                </AppText>
+              </View>
             </Pressable>
-          ))}
-        </ScrollView>
+          </View>
+        </Reanimated.View>
+
+        {/* Günün niyeti: kutusuz — amber tırnak, italik metin, ince çizgi */}
+        <Reanimated.View entering={enter(2)} style={styles.quoteWrap}>
+          <AppText variant="display2" tone="accent" accessibilityElementsHidden style={styles.quoteMark}>
+            {'“'}
+          </AppText>
+          <AppText variant="quote">{quote[locale]}</AppText>
+          <View style={[styles.quoteRule, { backgroundColor: colors.accentSoft }]} />
+        </Reanimated.View>
+
+        {/* Kategori kısayolları */}
+        <Reanimated.View entering={enter(3)}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+            {catalog.categories.map((category) => (
+              <Pressable
+                key={category.id}
+                accessibilityRole="button"
+                accessibilityLabel={category.name[locale]}
+                onPress={() =>
+                  router.push({ pathname: '/category/[categoryId]', params: { categoryId: category.id } })
+                }
+                style={({ pressed }) => [
+                  styles.chip,
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  pressed && styles.pressed,
+                ]}
+              >
+                <AppText variant="secondary">{category.name[locale]}</AppText>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </Reanimated.View>
 
         {/* Devam et: yarım kalan seanslar */}
         {resumable.length > 0 && (
           <>
             <View style={styles.sectionHeader}>
               <AppText variant="display3">{t('today.continueShelf')}</AppText>
+              <AppText variant="caption" tone="secondary" style={styles.tabular}>
+                {resumable.length}
+              </AppText>
             </View>
             <View style={styles.resumeList}>
               {resumable.map((session) => {
@@ -157,7 +225,7 @@ export default function TodayScreen() {
                     onPress={() => openSession(session)}
                     style={({ pressed }) => [
                       styles.resumeRow,
-                      { backgroundColor: colors.surface, borderColor: colors.border },
+                      { backgroundColor: colors.surfaceHigh },
                       pressed && styles.pressed,
                     ]}
                   >
@@ -179,9 +247,12 @@ export default function TodayScreen() {
           </>
         )}
 
-        {/* Yeni eklenenler (PLAN §6.2) */}
+        {/* Yeni eklenenler (PLAN §6.2) — kare kapaklar */}
         <View style={styles.sectionHeader}>
           <AppText variant="display3">{t('today.newShelf')}</AppText>
+          <AppText variant="caption" tone="secondary" style={styles.tabular}>
+            {newest.length}
+          </AppText>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.shelf}>
           {newest.map((session) => (
@@ -191,18 +262,18 @@ export default function TodayScreen() {
               accessibilityLabel={`${session.title[locale]}, ${durationLabel(session.durationSec, locale)}`}
               onPress={() => openSession(session)}
               style={({ pressed }) => [
-                styles.shelfCard,
+                styles.shelfCardSquare,
                 { backgroundColor: colors.surface, borderColor: colors.border },
                 pressed && styles.pressed,
               ]}
             >
-              <CoverArt seed={session.id} categoryId={session.categories[0]} height={80} kind={session.type} />
+              <CoverArt seed={session.id} categoryId={session.categories[0]} height={156} kind={session.type} />
               <View style={styles.shelfMeta}>
                 <AppText variant="bodyMedium" numberOfLines={2}>
                   {session.title[locale]}
                 </AppText>
                 <View style={styles.shelfRow}>
-                  <AppText variant="caption" tone="secondary">
+                  <AppText variant="caption" tone="accent" style={styles.tabular}>
                     {durationLabel(session.durationSec, locale)}
                   </AppText>
                   {isNewSession(session) ? (
@@ -220,9 +291,12 @@ export default function TodayScreen() {
           ))}
         </ScrollView>
 
-        {/* Ücretsiz seçkiler */}
+        {/* Ücretsiz seçkiler — 4:3 kapaklar */}
         <View style={styles.sectionHeader}>
           <AppText variant="display3">{t('today.freePicks')}</AppText>
+          <AppText variant="caption" tone="secondary" style={styles.tabular}>
+            {freePicks.length}
+          </AppText>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.shelf}>
           {freePicks.map((session) => (
@@ -237,13 +311,13 @@ export default function TodayScreen() {
                 pressed && styles.pressed,
               ]}
             >
-              <CoverArt seed={session.id} categoryId={session.categories[0]} height={80} kind={session.type} />
+              <CoverArt seed={session.id} categoryId={session.categories[0]} height={165} kind={session.type} />
               <View style={styles.shelfMeta}>
                 <AppText variant="bodyMedium" numberOfLines={2}>
                   {session.title[locale]}
                 </AppText>
                 <View style={styles.shelfRow}>
-                  <AppText variant="caption" tone="secondary">
+                  <AppText variant="caption" tone="accent" style={styles.tabular}>
                     {durationLabel(session.durationSec, locale)}
                   </AppText>
                   {!canAccessSession(session, isPremium) && <LockBadge />}
@@ -260,7 +334,22 @@ export default function TodayScreen() {
 const styles = StyleSheet.create({
   stack: { gap: space.lg },
   pressed: { transform: [{ scale: 0.98 }], opacity: 0.95 },
+  tabular: { fontVariant: ['tabular-nums'] },
+  heroWrap: { position: 'relative' },
+  heroGlow: {
+    position: 'absolute',
+    top: -4,
+    left: 8,
+    right: 8,
+    height: 160,
+    borderRadius: radius.card,
+    overflow: 'hidden',
+    opacity: 0.35,
+  },
   hero: { borderRadius: radius.card, borderWidth: 1, overflow: 'hidden' },
+  heroArtClip: { height: 148, overflow: 'hidden' },
+  heroArtInner: { marginTop: -20 },
+  heroTint: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   heroMeta: { padding: space.md, gap: space.xs },
   chips: { gap: space.xs, paddingRight: space.lg },
   chip: {
@@ -270,7 +359,12 @@ const styles = StyleSheet.create({
     minHeight: 44,
     justifyContent: 'center',
   },
-  sectionHeader: { marginTop: space.xs },
+  sectionHeader: {
+    marginTop: space.xs,
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: space.xs,
+  },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.sm },
   headerTitle: { flexShrink: 1 },
   statPill: {
@@ -282,14 +376,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.sm,
     minHeight: 44,
   },
-  quoteCard: {
-    borderLeftWidth: 0,
-    borderWidth: 1,
-    borderRadius: radius.card,
-    paddingHorizontal: space.md,
-    paddingVertical: space.md,
-  },
-  quoteText: { fontStyle: 'normal' },
+  quoteWrap: { paddingHorizontal: space.xs, gap: 2 },
+  quoteMark: { lineHeight: 30, marginBottom: -6 },
+  quoteRule: { height: 2, width: 56, borderRadius: 1, marginTop: space.sm },
   newBadge: { borderRadius: 999, paddingHorizontal: space.xs, paddingVertical: 3 },
   resumeList: { gap: space.xs },
   resumeRow: {
@@ -297,7 +386,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: space.sm,
     borderRadius: radius.card,
-    borderWidth: 1,
     overflow: 'hidden',
     minHeight: 64,
     paddingRight: space.md,
@@ -306,6 +394,7 @@ const styles = StyleSheet.create({
   resumeMeta: { flex: 1, gap: 2 },
   shelf: { gap: space.sm, paddingRight: space.lg },
   shelfCard: { width: 220, borderRadius: radius.card, borderWidth: 1, overflow: 'hidden' },
+  shelfCardSquare: { width: 156, borderRadius: radius.card, borderWidth: 1, overflow: 'hidden' },
   shelfMeta: { padding: space.sm, gap: 4 },
   shelfRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
 });

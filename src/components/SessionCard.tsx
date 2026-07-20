@@ -38,7 +38,10 @@ export function SessionCard({ id, kind = 'guided', title, durationLabel, categor
         </AppText>
         <View style={styles.row}>
           <AppText variant="secondary" tone="secondary">
-            {categoryLabel} · {durationLabel}
+            {categoryLabel} ·{' '}
+            <AppText variant="secondary" tone="accent" style={styles.duration}>
+              {durationLabel}
+            </AppText>
           </AppText>
           {locked ? <LockBadge /> : null}
         </View>
@@ -54,6 +57,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   pressed: { transform: [{ scale: 0.98 }], opacity: 0.95 },
+  duration: { fontVariant: ['tabular-nums'] },
   meta: {
     padding: space.md,
     gap: space.xs,
