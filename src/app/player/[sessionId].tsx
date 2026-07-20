@@ -2,7 +2,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, cancelAnimation, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import * as StoreReview from 'expo-store-review';
 import { useKeepAwake } from 'expo-keep-awake';
 
@@ -18,6 +18,7 @@ import {
   WavesIcon,
 } from '@/components/icons';
 import { catalog, programsById, sessionsById } from '@/content/catalog';
+import { recommendForToday } from '@/features/today/recommendation';
 import { playbackController, usePlayback } from '@/features/player/controller';
 import { findProgramDay, type SleepTimerChoice } from '@/features/player/logic';
 import { timeLabel, upperFor } from '@/i18n/format';
@@ -25,6 +26,7 @@ import { useLocale } from '@/i18n';
 import { motion, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { useProgress } from '@/stores/progress';
+import { usePremium } from '@/stores/premium';
 import { useSettings } from '@/stores/settings';
 import { useStats } from '@/stores/stats';
 
@@ -115,6 +117,18 @@ function Player({ sessionKey }: { sessionKey: string }) {
 
   const keepScreenAwake = useSettings((s) => s.keepScreenAwake);
 
+  // Kapak arkasında çok yavaş dönen amber hale (PLAN §5.5: 120 sn/tur).
+  const reducedMotion = useReducedMotion();
+  const haloAngle = useSharedValue(0);
+  useEffect(() => {
+    if (reducedMotion) return;
+    haloAngle.value = withRepeat(withTiming(360, { duration: 120000, easing: Easing.linear }), -1);
+    return () => cancelAnimation(haloAngle);
+  }, [haloAngle, reducedMotion]);
+  const haloStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${haloAngle.value}deg` }, { scaleX: 1.06 }],
+  }));
+
   function onArtPress() {
     const now = Date.now();
     if (now - lastTap.current < 300) playbackController.toggle(); // çift dokunuş
@@ -167,6 +181,7 @@ function Player({ sessionKey }: { sessionKey: string }) {
             onPress={onArtPress}
             style={styles.artBlock}
           >
+            <Animated.View style={[styles.halo, { backgroundColor: colors.accentSoft }, haloStyle]} />
             <PlayRing progress={progress} size={264}>
               <View style={styles.artClip}>
                 <CoverArt
@@ -342,7 +357,19 @@ function Player({ sessionKey }: { sessionKey: string }) {
 function FinishView({ sessionKey, onClose }: { sessionKey: string; onClose: () => void }) {
   const { t } = useTranslation();
   const locale = useLocale();
+  const { colors } = useTheme();
+  const router = useRouter();
   const programs = useProgress((s) => s.programs);
+  const [mood, setMood] = useState<number | null>(null);
+  const isPremium = usePremium((s) => s.isPremium);
+  const intents = useSettings((s) => s.intents);
+  // Sıradaki öneri: mevcut seans hariç (PLAN §6.4)
+  const nextRec = recommendForToday(catalog, programs, new Date().getHours(), isPremium, intents);
+  const nextSession = nextRec.session.id === sessionKey ? null : nextRec.session;
+  const openNext = (id: string) => {
+    playbackController.acknowledgeFinished();
+    router.replace({ pathname: '/player/[sessionId]', params: { sessionId: id } });
+  };
 
   // Program bitti mi? Son gün tamamlandıysa kutlama varyantı gösterilir.
   const day = findProgramDay(catalog, sessionKey);
@@ -379,6 +406,58 @@ function FinishView({ sessionKey, onClose }: { sessionKey: string; onClose: () =
                 : t('player.doneBody')}
             </AppText>
           </View>
+          {/* Ruh hali check-in: tek dokunuş, cihazda kalır */}
+          <View style={styles.moodRow}>
+            {(
+              [
+                { value: 1, labelKey: 'player.moodCalmer' },
+                { value: 0, labelKey: 'player.moodSame' },
+                { value: -1, labelKey: 'player.moodTense' },
+              ] as const
+            ).map((option) => (
+              <Chip
+                key={option.value}
+                label={t(option.labelKey)}
+                active={mood === option.value}
+                onPress={() => {
+                  setMood(option.value);
+                  useStats.getState().recordMood(option.value);
+                }}
+              />
+            ))}
+          </View>
+
+          {nextSession && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${t('player.upNext')}: ${nextSession.title[locale]}`}
+              onPress={() => openNext(nextSession.id)}
+              style={({ pressed }) => [
+                styles.nextCard,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+                pressed && { opacity: 0.9 },
+              ]}
+            >
+              <View style={styles.nextArt}>
+                <CoverArt
+                  seed={nextSession.id}
+                  categoryId={nextSession.categories[0]}
+                  height={56}
+                  kind={nextSession.type}
+                />
+              </View>
+              <View style={styles.nextMeta}>
+                <AppText variant="caption" tone="accent">
+                  {upperFor(t('player.upNext'), locale)}
+                </AppText>
+                <AppText variant="bodyMedium" numberOfLines={1}>
+                  {nextSession.title[locale]}
+                </AppText>
+              </View>
+              <PlayIcon color={colors.accent} size={22} />
+            </Pressable>
+          )}
+
           <Button label={t('common.close')} onPress={onClose} />
         </View>
       </Screen>
@@ -413,7 +492,8 @@ const styles = StyleSheet.create({
   dimGroup: { alignItems: 'center', gap: space.lg, alignSelf: 'stretch' },
   pressed: { opacity: 0.85 },
   close: { minWidth: 44, minHeight: 44, justifyContent: 'center' },
-  artBlock: { alignItems: 'center' },
+  artBlock: { alignItems: 'center', justifyContent: 'center' },
+  halo: { position: 'absolute', width: 320, height: 320, borderRadius: 160 },
   artClip: { width: 232, height: 232, borderRadius: radius.playerArt * 4, overflow: 'hidden' },
   meta: { alignItems: 'center', gap: space.xs, paddingHorizontal: space.lg },
   centerText: { textAlign: 'center' },
@@ -437,6 +517,20 @@ const styles = StyleSheet.create({
     minHeight: 36,
     justifyContent: 'center',
   },
-  finish: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.xl },
+  finish: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.lg },
+  moodRow: { flexDirection: 'row', gap: space.xs },
+  nextCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    overflow: 'hidden',
+    alignSelf: 'stretch',
+    paddingRight: space.md,
+    minHeight: 56,
+  },
+  nextArt: { width: 64, height: 56 },
+  nextMeta: { flex: 1, gap: 2 },
   finishCopy: { alignItems: 'center', gap: space.xs },
 });

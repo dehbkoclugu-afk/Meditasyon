@@ -1,4 +1,4 @@
-import { advanceStreak, effectiveStreak, localDateKey } from './streak';
+import { activeDaysThisWeek, advanceStreak, effectiveStreak, localDateKey } from './streak';
 
 const empty = { current: 0, best: 0, lastActiveDate: null };
 
@@ -46,5 +46,13 @@ describe('effectiveStreak', () => {
 describe('localDateKey', () => {
   it('yerel günü YYYY-MM-DD üretir', () => {
     expect(localDateKey(new Date(2026, 6, 18, 23, 59))).toBe('2026-07-18');
+  });
+});
+
+describe('activeDaysThisWeek', () => {
+  it('pazartesiden bugüne sayar', () => {
+    // 2026-07-20 Pazartesi
+    expect(activeDaysThisWeek(['2026-07-19', '2026-07-20'], '2026-07-20')).toBe(1);
+    expect(activeDaysThisWeek(['2026-07-20', '2026-07-21', '2026-07-25'], '2026-07-22')).toBe(2);
   });
 });

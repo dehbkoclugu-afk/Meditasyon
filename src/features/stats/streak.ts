@@ -34,3 +34,13 @@ export function effectiveStreak(streak: Streak, today: string): number {
   const diff = dayDiff(streak.lastActiveDate, today);
   return diff <= 1 ? streak.current : 0;
 }
+
+/** Bu haftanın (Pazartesi başlangıçlı) aktif gün sayısı — haftalık hedef halkası. */
+export function activeDaysThisWeek(activeDays: string[], today: string): number {
+  const ref = new Date(`${today}T12:00:00`);
+  const dow = (ref.getDay() + 6) % 7; // Pazartesi=0
+  const monday = new Date(ref);
+  monday.setDate(ref.getDate() - dow);
+  const mondayKey = localDateKey(monday);
+  return activeDays.filter((d) => d >= mondayKey && d <= today).length;
+}

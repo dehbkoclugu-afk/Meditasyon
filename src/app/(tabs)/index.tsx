@@ -3,6 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText, CoverArt, LockBadge, Screen } from '@/components';
+import { FlameIcon } from '@/components/icons';
+import { isNewSession, newestSessions } from '@/content/fresh';
+import { dailyQuote } from '@/content/quotes';
+import { effectiveStreak, localDateKey } from '@/features/stats/streak';
 import { canAccessSession } from '@/content/access';
 import { catalog } from '@/content/catalog';
 import { recommendForToday } from '@/features/today/recommendation';
@@ -12,6 +16,7 @@ import { useLocale } from '@/i18n';
 import { radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { usePremium } from '@/stores/premium';
+import { useStats } from '@/stores/stats';
 import { useProgress } from '@/stores/progress';
 import { useSettings } from '@/stores/settings';
 
@@ -25,9 +30,15 @@ export default function TodayScreen() {
   const programs = useProgress((s) => s.programs);
   const sessionProgress = useProgress((s) => s.sessions);
   const intents = useSettings((s) => s.intents);
+  const stats = useStats();
 
   const hour = new Date().getHours();
+  const todayKey = localDateKey(new Date());
+  const streak = effectiveStreak(stats.streak, todayKey);
+  const todayMinutes = stats.dayMinutes[todayKey] ?? 0;
+  const quote = dailyQuote(todayKey);
   const rec = recommendForToday(catalog, programs, hour, isPremium, intents);
+  const newest = newestSessions(catalog.sessions, 6);
   // Yarım kalanlar: pozisyon kaydı olan, öneriyle çakışmayan seanslar
   const resumable = catalog.sessions
     .filter((s) => (sessionProgress[s.id]?.lastPositionSec ?? 0) > 5 && s.id !== rec.session.id)
@@ -47,7 +58,28 @@ export default function TodayScreen() {
   return (
     <Screen scroll>
       <View style={styles.stack}>
-        <AppText variant="display1">{t(`greeting.${dayPartForHour(hour)}`)}</AppText>
+        {/* Başlık: selamlama + streak alevi + bugünkü dakika (PLAN §6.2) */}
+        <View style={styles.headerRow}>
+          <AppText variant="display1" style={styles.headerTitle}>
+            {t(`greeting.${dayPartForHour(hour)}`)}
+          </AppText>
+          {(streak > 0 || todayMinutes > 0) && (
+            <View
+              style={[styles.statPill, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              accessibilityLabel={`${streak} ${t('profile.streak')}, ${todayMinutes} ${t('profile.totalMinutes')}`}
+            >
+              <FlameIcon color={streak > 0 ? colors.accent : colors.textSecondary} size={18} />
+              <AppText variant="caption" style={{ fontVariant: ['tabular-nums'] }}>
+                {streak}
+              </AppText>
+              {todayMinutes > 0 && (
+                <AppText variant="caption" tone="secondary" style={{ fontVariant: ['tabular-nums'] }}>
+                  · {t('player.minutes', { count: todayMinutes })}
+                </AppText>
+              )}
+            </View>
+          )}
+        </View>
 
         {/* Hero: günün önerisi — ekranın tek birincil eylemi */}
         <Pressable
@@ -74,6 +106,13 @@ export default function TodayScreen() {
             </AppText>
           </View>
         </Pressable>
+
+        {/* Günün niyeti */}
+        <View style={[styles.quoteCard, { borderColor: colors.border }]}>
+          <AppText variant="display3" style={styles.quoteText}>
+            {quote[locale]}
+          </AppText>
+        </View>
 
         {/* Kategori kısayolları */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
@@ -140,6 +179,47 @@ export default function TodayScreen() {
           </>
         )}
 
+        {/* Yeni eklenenler (PLAN §6.2) */}
+        <View style={styles.sectionHeader}>
+          <AppText variant="display3">{t('today.newShelf')}</AppText>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.shelf}>
+          {newest.map((session) => (
+            <Pressable
+              key={session.id}
+              accessibilityRole="button"
+              accessibilityLabel={`${session.title[locale]}, ${durationLabel(session.durationSec, locale)}`}
+              onPress={() => openSession(session)}
+              style={({ pressed }) => [
+                styles.shelfCard,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+                pressed && styles.pressed,
+              ]}
+            >
+              <CoverArt seed={session.id} categoryId={session.categories[0]} height={80} kind={session.type} />
+              <View style={styles.shelfMeta}>
+                <AppText variant="bodyMedium" numberOfLines={2}>
+                  {session.title[locale]}
+                </AppText>
+                <View style={styles.shelfRow}>
+                  <AppText variant="caption" tone="secondary">
+                    {durationLabel(session.durationSec, locale)}
+                  </AppText>
+                  {isNewSession(session) ? (
+                    <View style={[styles.newBadge, { backgroundColor: colors.accentSoft }]}>
+                      <AppText variant="caption" style={{ color: colors.accent }}>
+                        {t('today.newBadge')}
+                      </AppText>
+                    </View>
+                  ) : (
+                    !canAccessSession(session, isPremium) && <LockBadge />
+                  )}
+                </View>
+              </View>
+            </Pressable>
+          ))}
+        </ScrollView>
+
         {/* Ücretsiz seçkiler */}
         <View style={styles.sectionHeader}>
           <AppText variant="display3">{t('today.freePicks')}</AppText>
@@ -191,6 +271,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sectionHeader: { marginTop: space.xs },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.sm },
+  headerTitle: { flexShrink: 1 },
+  statPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: space.sm,
+    minHeight: 36,
+  },
+  quoteCard: {
+    borderLeftWidth: 0,
+    borderWidth: 1,
+    borderRadius: radius.card,
+    paddingHorizontal: space.md,
+    paddingVertical: space.md,
+  },
+  quoteText: { fontStyle: 'normal' },
+  newBadge: { borderRadius: 999, paddingHorizontal: space.xs, paddingVertical: 3 },
   resumeList: { gap: space.xs },
   resumeRow: {
     flexDirection: 'row',

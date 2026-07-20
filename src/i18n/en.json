@@ -26,7 +26,9 @@
     "heroProgramDay": "{{program}} · Day {{day}}",
     "freePicks": "Free picks",
     "continueShelf": "Continue",
-    "resumeLeft": "{{count}} min left"
+    "resumeLeft": "{{count}} min left",
+    "newShelf": "New this week",
+    "newBadge": "New"
   },
   "explore": {
     "title": "Explore",
@@ -75,7 +77,11 @@
     "minutes20": "20 min",
     "minutes45": "45 min",
     "programDoneTitle": "Program complete",
-    "programDoneBody": "{{program}} is done. You made room for yourself every day — this practice is yours now."
+    "programDoneBody": "{{program}} is done. You made room for yourself every day — this practice is yours now.",
+    "moodCalmer": "Calmer",
+    "moodSame": "The same",
+    "moodTense": "Still tense",
+    "upNext": "Up next"
   },
   "breathing": {
     "title": "Breathe",
@@ -154,7 +160,8 @@
     "badges": "Badges",
     "favorites": "Favorites",
     "favoritesEmpty": "Sessions you heart in the player gather here.",
-    "goalProgress": "{{done}}/{{goal}} days this week"
+    "goalProgress": "{{done}}/{{goal}} days this week",
+    "moodTitle": "LAST 14 DAYS — HOW YOU FELT"
   },
   "badges": {
     "ilk-adim": "First session",

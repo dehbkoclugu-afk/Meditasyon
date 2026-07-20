@@ -127,6 +127,19 @@ export function WavesIcon({ color, size = 24 }: IconProps) {
   );
 }
 
+/** Seri — alev */
+export function FlameIcon({ color, size = 24 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path
+        d="M12 4.5c.6 2.4 2.2 3.7 3.6 5.2 1.3 1.4 2.2 2.9 2.2 4.8a5.8 5.8 0 0 1-11.6 0c0-2.4 1.4-3.9 2.5-5.5.9-1.3 1.3-2.1 1.1-3.6.9.5 1.7 1.3 2.2 2.3Z"
+        stroke={color}
+        {...strokeProps}
+      />
+    </Svg>
+  );
+}
+
 /** Sen — filizlenen tohum */
 export function SeedIcon({ color, size = 24 }: IconProps) {
   return (

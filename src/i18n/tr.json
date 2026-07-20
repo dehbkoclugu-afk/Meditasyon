@@ -26,7 +26,9 @@
     "heroProgramDay": "{{program}} · Gün {{day}}",
     "freePicks": "Ücretsiz seçkiler",
     "continueShelf": "Devam et",
-    "resumeLeft": "kalan {{count}} dk"
+    "resumeLeft": "kalan {{count}} dk",
+    "newShelf": "Yeni eklenenler",
+    "newBadge": "Yeni"
   },
   "explore": {
     "title": "Keşfet",
@@ -75,7 +77,11 @@
     "minutes20": "20 dk",
     "minutes45": "45 dk",
     "programDoneTitle": "Program tamamlandı",
-    "programDoneBody": "{{program}} bitti. Yedi gün boyunca kendine alan açtın — bu artık senin pratiğin."
+    "programDoneBody": "{{program}} bitti. Yedi gün boyunca kendine alan açtın — bu artık senin pratiğin.",
+    "moodCalmer": "Daha sakinim",
+    "moodSame": "Aynıyım",
+    "moodTense": "Hâlâ gerginim",
+    "upNext": "Sıradaki"
   },
   "breathing": {
     "title": "Nefes",
@@ -154,7 +160,8 @@
     "badges": "Rozetler",
     "favorites": "Favoriler",
     "favoritesEmpty": "Player'daki kalple beğendiğin seanslar burada birikir.",
-    "goalProgress": "Bu hafta {{done}}/{{goal}} gün"
+    "goalProgress": "Bu hafta {{done}}/{{goal}} gün",
+    "moodTitle": "SON 14 GÜN — NASIL HİSSETTİN"
   },
   "badges": {
     "ilk-adim": "İlk seans",
