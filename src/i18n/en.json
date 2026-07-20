@@ -195,5 +195,19 @@
     "goal": "WEEKLY GOAL",
     "goalOff": "Off",
     "goalDays": "{{count}} days a week"
+  },
+  "timer": {
+    "title": "Open Session",
+    "entry": "Open session",
+    "entrySub": "Sit unguided — you choose length, bells, ambience",
+    "duration": "DURATION",
+    "intervalBell": "INTERVAL BELL",
+    "bellOff": "Off",
+    "bellEvery": "Every {{count}} min",
+    "remaining": "left",
+    "pause": "Pause",
+    "resume": "Resume",
+    "finishEarly": "Finish",
+    "doneBody": "Sitting in silence is a practice too. How did it feel?"
   }
 }

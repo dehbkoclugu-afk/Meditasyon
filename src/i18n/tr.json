@@ -195,5 +195,19 @@
     "goal": "HAFTALIK HEDEF",
     "goalOff": "Kapalı",
     "goalDays": "Haftada {{count}} gün"
+  },
+  "timer": {
+    "title": "Zamansız Oturum",
+    "entry": "Zamansız oturum",
+    "entrySub": "Rehbersiz otur — süre, çan, arka plan sesi sende",
+    "duration": "SÜRE",
+    "intervalBell": "ARALIKLI ÇAN",
+    "bellOff": "Kapalı",
+    "bellEvery": "Her {{count}} dk",
+    "remaining": "kalan",
+    "pause": "Duraklat",
+    "resume": "Devam et",
+    "finishEarly": "Bitir",
+    "doneBody": "Sessizlikte kalabilmek de bir pratik. İyi geldi mi?"
   }
 }

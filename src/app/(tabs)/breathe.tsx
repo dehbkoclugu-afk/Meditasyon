@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText, Screen } from '@/components';
-import { BreathIcon } from '@/components/icons';
+import { BreathIcon, MoonIcon } from '@/components/icons';
 import { catalog } from '@/content/catalog';
 import { cycleSeconds } from '@/features/breathing/engine';
 import { useLocale } from '@/i18n';
@@ -23,6 +23,27 @@ export default function BreatheScreen() {
       <View style={styles.stack}>
         <AppText variant="display2">{t('breathing.title')}</AppText>
         <AppText tone="secondary">{t('breathing.subtitle')}</AppText>
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('timer.entry')}
+          onPress={() => router.push('/timer')}
+          style={({ pressed }) => [
+            styles.card,
+            { backgroundColor: colors.surfaceHigh, borderColor: colors.accent },
+            pressed && styles.pressed,
+          ]}
+        >
+          <View style={[styles.iconWrap, { backgroundColor: colors.accentSoft }]}>
+            <MoonIcon color={colors.accent} />
+          </View>
+          <View style={styles.meta}>
+            <AppText variant="bodyMedium">{t('timer.entry')}</AppText>
+            <AppText variant="caption" tone="secondary">
+              {t('timer.entrySub')}
+            </AppText>
+          </View>
+        </Pressable>
 
         {exercises.map((session) => {
           const p = session.pattern!;

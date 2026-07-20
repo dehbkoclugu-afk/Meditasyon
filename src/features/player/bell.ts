@@ -8,14 +8,18 @@ import { useSettings } from '@/stores/settings';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const BELL = require('../../../assets/audio/bell.wav') as number;
 
-export function playBellIfEnabled(): void {
-  if (!useSettings.getState().bellEnabled) return;
+export function playBell(volume = 0.6): void {
   try {
     const player = createAudioPlayer(BELL);
-    player.volume = 0.6;
+    player.volume = volume;
     player.play();
     setTimeout(() => player.remove(), 4500);
   } catch {
     // ses çalınamıyorsa sessizce geç — çan kritik değil
   }
+}
+
+export function playBellIfEnabled(): void {
+  if (!useSettings.getState().bellEnabled) return;
+  playBell();
 }
