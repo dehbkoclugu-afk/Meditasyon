@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText, CoverArt, LockBadge, Screen } from '@/components';
 import { canAccessProgramDay } from '@/content/access';
+import { artworkAssets } from '@/content/artwork-map';
 import { programDaySessions, programsById } from '@/content/catalog';
 import { useOpenSession } from '@/features/navigation';
 import { durationLabel } from '@/i18n/format';
@@ -42,7 +43,12 @@ export default function ProgramScreen() {
       <Stack.Screen options={{ headerShown: true, title: program.title[locale], headerBackTitle: t('common.back') }} />
       <Screen scroll>
         <View style={styles.stack}>
-          <CoverArt seed={program.id} categoryId={days[0].categories[0]} height={148} />
+          <CoverArt
+            seed={artworkAssets[`prog-${program.id}`] != null ? `prog-${program.id}` : days[0].id}
+            categoryId={days[0].categories[0]}
+            height={148}
+            kind={days[0].type}
+          />
           <AppText variant="display1">{program.title[locale]}</AppText>
           <AppText tone="secondary">{program.description[locale]}</AppText>
 
