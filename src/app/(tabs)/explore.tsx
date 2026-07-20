@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { AppText, EmptyState, ProgramCard, Screen, SessionCard } from '@/components';
+import { AppText, CoverArt, EmptyState, ProgramCard, Screen, SessionCard } from '@/components';
 import { canAccessSession } from '@/content/access';
 import { catalog } from '@/content/catalog';
 import { useOpenSession } from '@/features/navigation';
 import { durationLabel, normalizeSearch } from '@/i18n/format';
 import { useLocale } from '@/i18n';
-import { categoryColors, fonts, radius, space, type CategoryId } from '@/design/tokens';
+import { fonts, radius, space, type CategoryId } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { usePremium } from '@/stores/premium';
 import { useProgress } from '@/stores/progress';
@@ -163,9 +163,9 @@ export default function ExploreScreen() {
                     pressed && styles.pressed,
                   ]}
                 >
-                  <View
-                    style={[styles.dot, { backgroundColor: categoryColors[category.id as CategoryId] }]}
-                  />
+                  <View style={styles.miniArt} accessibilityElementsHidden>
+                    <CoverArt seed={category.id} categoryId={category.id as CategoryId} height={32} />
+                  </View>
                   <AppText variant="bodyMedium">{category.name[locale]}</AppText>
                 </Pressable>
               ))}
@@ -210,5 +210,5 @@ const styles = StyleSheet.create({
     minHeight: 72,
     justifyContent: 'center',
   },
-  dot: { width: 10, height: 10, borderRadius: 5 },
+  miniArt: { width: 48, height: 32, borderRadius: 8, overflow: 'hidden' },
 });

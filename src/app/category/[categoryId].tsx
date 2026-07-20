@@ -2,13 +2,13 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
-import { AppText, EmptyState, Screen, SessionCard } from '@/components';
+import { AppText, CoverArt, EmptyState, Screen, SessionCard } from '@/components';
 import { canAccessSession } from '@/content/access';
 import { catalog, sessionsInCategory } from '@/content/catalog';
 import { useOpenSession } from '@/features/navigation';
 import { durationLabel } from '@/i18n/format';
 import { useLocale } from '@/i18n';
-import { space } from '@/design/tokens';
+import { radius, space, type CategoryId } from '@/design/tokens';
 import { usePremium } from '@/stores/premium';
 
 export default function CategoryScreen() {
@@ -34,6 +34,12 @@ export default function CategoryScreen() {
       <Stack.Screen options={{ headerShown: true, title: category.name[locale], headerBackTitle: t('common.back') }} />
       <Screen scroll>
         <View style={styles.stack}>
+          {/* Dev, kırpık kapak: kategori kimliği başlığın üstünde nefes alır */}
+          <View style={styles.headerArt} accessibilityElementsHidden>
+            <View style={styles.headerArtInner}>
+              <CoverArt seed={category.id} categoryId={category.id as CategoryId} height={280} />
+            </View>
+          </View>
           <AppText variant="display1">{category.name[locale]}</AppText>
           {category.tagline && (
             <AppText tone="secondary">{category.tagline[locale]}</AppText>
@@ -63,4 +69,6 @@ export default function CategoryScreen() {
 
 const styles = StyleSheet.create({
   stack: { gap: space.sm },
+  headerArt: { height: 150, borderRadius: radius.card, overflow: 'hidden' },
+  headerArtInner: { marginTop: -65 },
 });

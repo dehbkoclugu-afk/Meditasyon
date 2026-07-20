@@ -12,7 +12,7 @@ import { catalog } from '@/content/catalog';
 import { playBell, playBellIfEnabled } from '@/features/player/bell';
 import { timeLabel } from '@/i18n/format';
 import { useLocale } from '@/i18n';
-import { radius, space } from '@/design/tokens';
+import { space } from '@/design/tokens';
 import { useTheme } from '@/design/theme';
 import { useSettings } from '@/stores/settings';
 import { useStats } from '@/stores/stats';
@@ -119,11 +119,49 @@ export default function TimerScreen() {
                   {t('timer.title')}
                 </AppText>
 
+                {/* Süre sahnesi: büyük rakam + yan ± adımlar; çipler hızlı seçim */}
                 <View style={styles.section}>
-                  <AppText variant="caption" tone="secondary">
-                    {t('timer.duration')}
-                  </AppText>
-                  <View style={styles.chipRow}>
+                  <View style={styles.durationScene}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`−5 ${t('timer.duration')}`}
+                      disabled={durationMin <= 5}
+                      onPress={() => setDurationMin((m) => Math.max(5, m - 5))}
+                      style={({ pressed }) => [
+                        styles.stepButton,
+                        { backgroundColor: colors.surface, opacity: durationMin <= 5 ? 0.35 : 1 },
+                        pressed && styles.pressed,
+                      ]}
+                    >
+                      <AppText variant="display3" tone="secondary">
+                        −
+                      </AppText>
+                    </Pressable>
+                    <View style={styles.durationCenter}>
+                      <AppText variant="numeral" style={styles.durationBig}>
+                        {durationMin}
+                      </AppText>
+                      <AppText variant="caption" tone="secondary">
+                        {t('timer.duration')}
+                      </AppText>
+                    </View>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`+5 ${t('timer.duration')}`}
+                      disabled={durationMin >= 60}
+                      onPress={() => setDurationMin((m) => Math.min(60, m + 5))}
+                      style={({ pressed }) => [
+                        styles.stepButton,
+                        { backgroundColor: colors.surface, opacity: durationMin >= 60 ? 0.35 : 1 },
+                        pressed && styles.pressed,
+                      ]}
+                    >
+                      <AppText variant="display3" tone="secondary">
+                        +
+                      </AppText>
+                    </Pressable>
+                  </View>
+                  <View style={[styles.chipRow, styles.chipRowCenter]}>
                     {DURATIONS.map((minutes) => (
                       <Chip
                         key={minutes}
@@ -260,6 +298,23 @@ const styles = StyleSheet.create({
     paddingVertical: space.xs,
   },
   copy: { alignItems: 'center', gap: 4 },
+  pressed: { transform: [{ scale: 0.98 }], opacity: 0.95 },
+  durationScene: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.lg,
+  },
+  durationCenter: { alignItems: 'center', minWidth: 96 },
+  durationBig: { fontSize: 64, lineHeight: 72 },
+  stepButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chipRowCenter: { justifyContent: 'center' },
   bigTime: { fontSize: 44, lineHeight: 52 },
   rowActions: { flexDirection: 'row', justifyContent: 'center', gap: space.sm, alignItems: 'center' },
 });

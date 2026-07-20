@@ -140,6 +140,20 @@ export function FlameIcon({ color, size = 24 }: IconProps) {
   );
 }
 
+/** Bitiş çanı — çan */
+export function BellIcon({ color, size = 24 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path
+        d="M12 4.8a5.2 5.2 0 0 1 5.2 5.2c0 3 .9 4.4 1.8 5.4H5c.9-1 1.8-2.4 1.8-5.4A5.2 5.2 0 0 1 12 4.8Z"
+        stroke={color}
+        {...strokeProps}
+      />
+      <Path d="M10.2 18.4a1.9 1.9 0 0 0 3.6 0" stroke={color} {...strokeProps} />
+    </Svg>
+  );
+}
+
 /** Dakika istatistiği — saat */
 export function ClockIcon({ color, size = 24 }: IconProps) {
   return (

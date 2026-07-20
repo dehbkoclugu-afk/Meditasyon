@@ -5,7 +5,6 @@ import { useSettings } from '@/stores/settings';
 // Seans bitiş çanı — sentezlenmiş tibet kasesi (scripts/gen-bell.mjs).
 // Gerçek kayıt gelirse assets/audio/bell.wav değiştirilir, kod aynı kalır.
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const BELL = require('../../../assets/audio/bell.wav') as number;
 
 export function playBell(volume = 0.6): void {

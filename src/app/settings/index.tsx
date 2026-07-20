@@ -5,6 +5,15 @@ import { useTranslation } from 'react-i18next';
 import { Linking, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
 
 import { AppText, Screen } from '@/components';
+import {
+  BellIcon,
+  ClockIcon,
+  CompassIcon,
+  HeartIcon,
+  PlayIcon,
+  SunHorizonIcon,
+  WavesIcon,
+} from '@/components/icons';
 import { exportBackup, importBackup } from '@/features/backup/backup';
 import { purchasesGateway } from '@/features/purchases/gateway';
 import {
@@ -118,7 +127,7 @@ export default function SettingsScreen() {
           </Section>
 
           <Section title={t('settings.reminder')}>
-            <Row label={t('settings.dailyReminder')}>
+            <Row label={t('settings.dailyReminder')} icon={<ClockIcon color={colors.textSecondary} size={18} />}>
               <Switch
                 value={settings.reminder.enabled}
                 onValueChange={toggleReminder}
@@ -145,7 +154,7 @@ export default function SettingsScreen() {
           </Section>
 
           <Section title={t('settings.session')}>
-            <Row label={t('settings.haptics')}>
+            <Row label={t('settings.haptics')} icon={<WavesIcon color={colors.textSecondary} size={18} />}>
               <Switch
                 value={settings.hapticsEnabled}
                 onValueChange={settings.setHapticsEnabled}
@@ -153,7 +162,7 @@ export default function SettingsScreen() {
                 thumbColor={colors.textPrimary}
               />
             </Row>
-            <Row label={t('settings.bell')}>
+            <Row label={t('settings.bell')} icon={<BellIcon color={colors.textSecondary} size={18} />}>
               <Switch
                 value={settings.bellEnabled}
                 onValueChange={settings.setBellEnabled}
@@ -161,7 +170,7 @@ export default function SettingsScreen() {
                 thumbColor={colors.textPrimary}
               />
             </Row>
-            <Row label={t('settings.keepAwake')}>
+            <Row label={t('settings.keepAwake')} icon={<SunHorizonIcon color={colors.textSecondary} size={18} />}>
               <Switch
                 value={settings.keepScreenAwake}
                 onValueChange={settings.setKeepScreenAwake}
@@ -169,7 +178,7 @@ export default function SettingsScreen() {
                 thumbColor={colors.textPrimary}
               />
             </Row>
-            <Row label={t('settings.autoResume')}>
+            <Row label={t('settings.autoResume')} icon={<PlayIcon color={colors.textSecondary} size={18} />}>
               <Switch
                 value={settings.autoResumeAfterCall}
                 onValueChange={settings.setAutoResumeAfterCall}
@@ -177,7 +186,7 @@ export default function SettingsScreen() {
                 thumbColor={colors.textPrimary}
               />
             </Row>
-            <Row label={t('settings.sequentialUnlock')}>
+            <Row label={t('settings.sequentialUnlock')} icon={<CompassIcon color={colors.textSecondary} size={18} />}>
               <Switch
                 value={settings.sequentialUnlock}
                 onValueChange={settings.setSequentialUnlock}
@@ -203,7 +212,7 @@ export default function SettingsScreen() {
           <Section title={t('settings.premium')}>
             <Row label={isPremium ? t('settings.membershipActive') : t('settings.membershipFree')} />
             {isPremium && <LinkRow label={t('settings.manageSubscription')} onPress={manageSubscription} />}
-            <LinkRow label={t('settings.restore')} onPress={restore} />
+            <LinkRow label={t('settings.restore')} icon={<HeartIcon color={colors.textSecondary} size={18} />} onPress={restore} />
           </Section>
 
           <Section title={t('settings.data')}>
@@ -241,19 +250,25 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Row({ label, children }: { label: string; children?: React.ReactNode }) {
+function Row({ label, icon, children }: { label: string; icon?: React.ReactNode; children?: React.ReactNode }) {
   return (
     <View style={styles.row}>
-      <AppText>{label}</AppText>
+      <View style={styles.rowLeft}>
+        {icon ? <View style={styles.rowIcon}>{icon}</View> : null}
+        <AppText style={styles.rowLabel}>{label}</AppText>
+      </View>
       {children}
     </View>
   );
 }
 
-function LinkRow({ label, onPress }: { label: string; onPress: () => void }) {
+function LinkRow({ label, icon, onPress }: { label: string; icon?: React.ReactNode; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={styles.row}>
-      <AppText tone="accent">{label}</AppText>
+      <View style={styles.rowLeft}>
+        {icon ? <View style={styles.rowIcon}>{icon}</View> : null}
+        <AppText tone="accent">{label}</AppText>
+      </View>
     </Pressable>
   );
 }
@@ -290,6 +305,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     minHeight: 48,
   },
+  rowLeft: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexShrink: 1 },
+  rowIcon: { width: 20, alignItems: 'center', opacity: 0.55 },
+  rowLabel: { flexShrink: 1 },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs, paddingVertical: space.xs },
   chip: {
     borderRadius: 999,

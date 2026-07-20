@@ -61,6 +61,20 @@ export default function OnboardingScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Screen>
         <View style={styles.root}>
+          {/* Adım göstergesi: aktif nokta amber çizgiye uzar */}
+          <View style={styles.dots} accessibilityLabel={`${step + 1} / 4`}>
+            {[0, 1, 2, 3].map((i) => (
+              <View
+                key={i}
+                style={[
+                  styles.dot,
+                  i === step
+                    ? { width: 24, backgroundColor: colors.accent }
+                    : { backgroundColor: colors.border },
+                ]}
+              />
+            ))}
+          </View>
           {step === 0 && (
             <View style={styles.center}>
               <BreathRing size={150} />
@@ -183,6 +197,13 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
+  dots: {
+    flexDirection: 'row',
+    gap: 6,
+    justifyContent: 'center',
+    paddingTop: space.sm,
+  },
+  dot: { width: 8, height: 8, borderRadius: 4 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.xl },
   copy: { alignItems: 'center', gap: space.xs, paddingHorizontal: space.lg },
   centerText: { textAlign: 'center' },

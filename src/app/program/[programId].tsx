@@ -55,46 +55,62 @@ export default function ProgramScreen() {
               const accessLocked = !canAccessProgramDay(program, index, isPremium);
               const locked = sequenceLocked || accessLocked;
 
+              // Zaman çizgisi noktası: bitmiş → dolu amber, sıradaki → amber halka, diğerleri → soluk
+              const dotStyle = isCompleted
+                ? { backgroundColor: colors.accent, borderColor: colors.accent }
+                : isCurrent
+                  ? { backgroundColor: colors.surfaceHigh, borderColor: colors.accent }
+                  : { backgroundColor: colors.surface, borderColor: colors.border };
+
               return (
-                <Pressable
-                  key={session.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${t('program.day', { day: index + 1 })}: ${session.title[locale]}${isCompleted ? `, ${t('program.completed')}` : locked ? `, ${t('program.locked')}` : ''}`}
-                  disabled={sequenceLocked}
-                  onPress={() => openSession(session)}
-                  style={({ pressed }) => [
-                    styles.dayRow,
-                    {
-                      backgroundColor: isCurrent ? colors.surfaceHigh : colors.surface,
-                      borderColor: isCurrent ? colors.accent : colors.border,
-                      opacity: sequenceLocked ? 0.45 : 1,
-                    },
-                    pressed && !sequenceLocked && styles.pressed,
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.dayBubble,
+                <View key={session.id} style={styles.timelineRow}>
+                  <View style={styles.timelineCol} accessibilityElementsHidden>
+                    <View
+                      style={[
+                        styles.timelineLine,
+                        { backgroundColor: index === 0 ? 'transparent' : colors.border },
+                      ]}
+                    />
+                    <View style={[styles.timelineDot, dotStyle]}>
+                      {isCompleted ? (
+                        <AppText variant="caption" tone="inverse" style={styles.dotMark}>
+                          ✓
+                        </AppText>
+                      ) : null}
+                    </View>
+                    <View
+                      style={[
+                        styles.timelineLine,
+                        { backgroundColor: index === days.length - 1 ? 'transparent' : colors.border },
+                      ]}
+                    />
+                  </View>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`${t('program.day', { day: index + 1 })}: ${session.title[locale]}${isCompleted ? `, ${t('program.completed')}` : locked ? `, ${t('program.locked')}` : ''}`}
+                    disabled={sequenceLocked}
+                    onPress={() => openSession(session)}
+                    style={({ pressed }) => [
+                      styles.dayRow,
                       {
-                        backgroundColor: isCompleted ? colors.accent : colors.surfaceHigh,
-                        borderColor: isCompleted ? colors.accent : colors.border,
+                        backgroundColor: isCurrent ? colors.surfaceHigh : colors.surface,
+                        borderColor: isCurrent ? colors.accent : 'transparent',
+                        opacity: sequenceLocked ? 0.45 : 1,
                       },
+                      pressed && !sequenceLocked && styles.pressed,
                     ]}
                   >
-                    <AppText variant="caption" tone={isCompleted ? 'inverse' : 'secondary'}>
-                      {isCompleted ? '✓' : index + 1}
-                    </AppText>
-                  </View>
-                  <View style={styles.dayMeta}>
-                    <AppText variant="bodyMedium" numberOfLines={1}>
-                      {session.title[locale]}
-                    </AppText>
-                    <AppText variant="caption" tone="secondary">
-                      {durationLabel(session.durationSec, locale)}
-                    </AppText>
-                  </View>
-                  {accessLocked && !sequenceLocked ? <LockBadge /> : null}
-                </Pressable>
+                    <View style={styles.dayMeta}>
+                      <AppText variant="bodyMedium" numberOfLines={1}>
+                        {session.title[locale]}
+                      </AppText>
+                      <AppText variant="caption" tone="secondary" style={styles.dayCaption}>
+                        {t('program.day', { day: index + 1 })} · {durationLabel(session.durationSec, locale)}
+                      </AppText>
+                    </View>
+                    {accessLocked && !sequenceLocked ? <LockBadge /> : null}
+                  </Pressable>
+                </View>
               );
             })}
           </View>
@@ -107,8 +123,21 @@ export default function ProgramScreen() {
 const styles = StyleSheet.create({
   stack: { gap: space.md },
   pressed: { transform: [{ scale: 0.98 }], opacity: 0.95 },
-  dayList: { gap: space.xs, marginTop: space.xs },
+  dayList: { marginTop: space.xs },
+  timelineRow: { flexDirection: 'row', alignItems: 'stretch', gap: space.sm },
+  timelineCol: { width: 20, alignItems: 'center' },
+  timelineLine: { flex: 1, width: 2, borderRadius: 1 },
+  timelineDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dotMark: { fontSize: 9, lineHeight: 11 },
   dayRow: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.sm,
@@ -116,14 +145,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: space.sm,
     minHeight: 64,
-  },
-  dayBubble: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginVertical: space.xs / 2,
   },
   dayMeta: { flex: 1, gap: 2 },
+  dayCaption: { fontVariant: ['tabular-nums'] },
 });
