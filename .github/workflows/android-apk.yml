@@ -6,6 +6,9 @@ name: Android APK
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'apk-*'
 
 jobs:
   apk:
