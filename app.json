@@ -10,8 +10,13 @@
     "ios": {
       "bundleIdentifier": "com.sakin.meditasyon",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"],
-        "CFBundleLocalizations": ["tr", "en"],
+        "UIBackgroundModes": [
+          "audio"
+        ],
+        "CFBundleLocalizations": [
+          "tr",
+          "en"
+        ],
         "CFBundleDevelopmentRegion": "tr"
       }
     },
@@ -45,7 +50,8 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "expo-quick-actions"
     ],
     "experiments": {
       "typedRoutes": true,

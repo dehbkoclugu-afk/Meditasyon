@@ -9,6 +9,8 @@ import {
   AlbertSans_700Bold,
 } from '@expo-google-fonts/albert-sans';
 import * as Notifications from 'expo-notifications';
+import * as QuickActions from 'expo-quick-actions';
+import { useQuickActionRouting } from 'expo-quick-actions/router';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -47,10 +49,35 @@ function useNotificationSync() {
   }, [router]);
 }
 
+// Ana ekran hızlı eylemleri: ikona basılı tut → Nefes / Zamansız oturum
+function useHomeQuickActions() {
+  useQuickActionRouting();
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    QuickActions.setItems([
+      {
+        id: 'breathe',
+        title: 'Nefes al',
+        subtitle: 'Kısa bir nefes egzersizi',
+        icon: Platform.OS === 'ios' ? 'symbol:wind' : undefined,
+        params: { href: '/breathe' },
+      },
+      {
+        id: 'timer',
+        title: 'Zamansız oturum',
+        subtitle: 'Sessiz meditasyon zamanlayıcısı',
+        icon: Platform.OS === 'ios' ? 'symbol:timer' : undefined,
+        params: { href: '/timer' },
+      },
+    ]).catch(() => {});
+  }, []);
+}
+
 function AppStack() {
   usePurchasesInit();
   useEffect(() => setupStreakGuard(), []);
   useNotificationSync();
+  useHomeQuickActions();
   const { colors, isDark } = useTheme();
   return (
     <>

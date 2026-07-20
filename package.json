@@ -20,6 +20,7 @@
     "expo-linking": "~57.0.3",
     "expo-localization": "~57.0.1",
     "expo-notifications": "~57.0.6",
+    "expo-quick-actions": "^6.0.2",
     "expo-router": "~57.0.7",
     "expo-sharing": "~57.0.6",
     "expo-splash-screen": "~57.0.4",
@@ -67,7 +68,8 @@
     "content:placeholders": "node scripts/gen-placeholders.mjs && node scripts/gen-asset-map.mjs",
     "content:map": "node scripts/gen-asset-map.mjs",
     "content:validate": "node scripts/validate-catalog.mjs",
-    "content:ingest": "node scripts/ingest-audio.mjs"
+    "content:ingest": "node scripts/ingest-audio.mjs",
+    "content:report": "node scripts/content-report.mjs"
   },
   "private": true,
   "jest": {
