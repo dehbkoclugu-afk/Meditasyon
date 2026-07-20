@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText, CoverArt, EmptyState, ProgramCard, Screen, SessionCard } from '@/components';
 import { canAccessSession } from '@/content/access';
-import { catalog } from '@/content/catalog';
+import { catalog, sessionsInCategory } from '@/content/catalog';
 import { useOpenSession } from '@/features/navigation';
 import { durationLabel, normalizeSearch } from '@/i18n/format';
 import { useLocale } from '@/i18n';
@@ -146,29 +146,38 @@ export default function ExploreScreen() {
               {t('explore.categories')}
             </AppText>
             <View style={styles.grid}>
-              {catalog.categories.map((category) => (
-                <Pressable
-                  key={category.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={category.name[locale]}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/category/[categoryId]',
-                      params: { categoryId: category.id },
-                    })
-                  }
-                  style={({ pressed }) => [
-                    styles.gridItem,
-                    { backgroundColor: colors.surface, borderColor: colors.border },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <View style={styles.miniArt} accessibilityElementsHidden>
-                    <CoverArt seed={category.id} categoryId={category.id as CategoryId} height={32} />
-                  </View>
-                  <AppText variant="bodyMedium">{category.name[locale]}</AppText>
-                </Pressable>
-              ))}
+              {catalog.categories.map((category) => {
+                // Mini kapak: kategorinin ilk seansının illüstrasyonu
+                const cover = sessionsInCategory(category.id)[0];
+                return (
+                  <Pressable
+                    key={category.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={category.name[locale]}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/category/[categoryId]',
+                        params: { categoryId: category.id },
+                      })
+                    }
+                    style={({ pressed }) => [
+                      styles.gridItem,
+                      { backgroundColor: colors.surface, borderColor: colors.border },
+                      pressed && styles.pressed,
+                    ]}
+                  >
+                    <View style={styles.miniArt} accessibilityElementsHidden>
+                      <CoverArt
+                        seed={cover?.id ?? category.id}
+                        categoryId={category.id as CategoryId}
+                        height={32}
+                        kind={cover?.type}
+                      />
+                    </View>
+                    <AppText variant="bodyMedium">{category.name[locale]}</AppText>
+                  </Pressable>
+                );
+              })}
             </View>
           </>
         )}
