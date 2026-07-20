@@ -6,9 +6,12 @@ name: Android APK
 
 on:
   workflow_dispatch:
+  # .apk-trigger dosyası değişince derlenir (normal push'lar APK üretmez)
   push:
-    tags:
-      - 'apk-*'
+    branches:
+      - 'claude/**'
+    paths:
+      - '.apk-trigger'
 
 jobs:
   apk:
