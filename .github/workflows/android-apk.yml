@@ -45,3 +45,45 @@ jobs:
           name: sakin-apk
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
+
+  # Duman testi: APK emülatörde açılıyor mu? Çökerse stack log'a düşer.
+  smoke:
+    needs: apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: APK'yı indir
+        uses: actions/download-artifact@v4
+        with:
+          name: sakin-apk
+
+      - name: KVM izinleri
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Emülatörde aç ve logcat topla
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            adb install app-release.apk
+            adb logcat -c
+            adb shell monkey -p com.sakin.meditasyon -c android.intent.category.LAUNCHER 1
+            sleep 30
+            adb logcat -d > logcat.txt
+            echo "===== CRASH ARAMA ====="
+            grep -B 2 -A 60 "FATAL EXCEPTION" logcat.txt || echo "FATAL EXCEPTION yok — uygulama ayakta görünüyor"
+            adb shell pidof com.sakin.meditasyon && echo "SUREC CALISIYOR" || echo "SUREC OLU"
+
+      - name: Logcat'i yükle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logcat
+          path: logcat.txt
+          if-no-files-found: ignore
