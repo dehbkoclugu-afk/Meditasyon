@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppText, BreathRing, Button, Screen } from '@/components';
+import { AppText, ArtSlot, BreathRing, Button, Screen } from '@/components';
 import { brand } from '@/config/brand';
 import { requestNotificationPermission, scheduleDailyReminder } from '@/features/reminders/reminders';
 import { radius, space } from '@/design/tokens';
@@ -77,7 +77,17 @@ export default function OnboardingScreen() {
           </View>
           {step === 0 && (
             <View style={styles.center}>
-              <BreathRing size={150} />
+              <ArtSlot
+                id="S5-onboarding-hero"
+                height={240}
+                radius={radius.card}
+                style={{ alignSelf: 'stretch' }}
+                fallback={
+                  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <BreathRing size={150} />
+                  </View>
+                }
+              />
               <View style={styles.copy}>
                 <AppText variant="display1" style={styles.centerText}>
                   {brand.name}

@@ -99,7 +99,16 @@ let singleton: AudioBackend | null = null;
 
 export function getAudioBackend(): AudioBackend {
   if (!singleton) {
-    singleton = hasTrackPlayerModule() ? createTrackPlayerBackend() : createExpoAudioBackend();
+    // Cihazda oynatma için expo-audio kullanılır. react-native-track-player 4.x
+    // bu ortamda kararsız: Android 14+'ta seans başlarken MusicService
+    // startForeground() arka plandan çağrılıp ForegroundServiceStartNotAllowedException
+    // ile çöküyor (ve coroutine hatalarıyla ana süreci düşürüyor). expo-audio backend'i
+    // ambience için zaten kullanılıyor ve sorunsuz. Ödün: kilit ekranı transport
+    // kontrolleri şimdilik yok — RNTP kodu ileride düzgün foreground-service
+    // yapılandırmasıyla geri getirilebilir (createTrackPlayerBackend korunuyor).
+    void hasTrackPlayerModule;
+    void createTrackPlayerBackend;
+    singleton = createExpoAudioBackend();
   }
   return singleton;
 }

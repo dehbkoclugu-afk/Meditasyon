@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import {
   AppText,
+  ArtSlot,
   BreathRing,
   Button,
   LockBadge,
@@ -10,7 +11,8 @@ import {
   SessionCard,
   StatTile,
 } from '@/components';
-import { fonts, space } from '@/design/tokens';
+import { artSpecs, type AssetId } from '@/content/art-registry';
+import { fonts, radius, space } from '@/design/tokens';
 
 // Gizli tasarım galerisi — tüm bileşen varyantları tek ekranda.
 // taste/impeccable audit'leri ve Türkçe diakritik kontrolü buradan yapılır.
@@ -85,6 +87,12 @@ export default function GalleryScreen() {
           <View style={styles.ringWrap}>
             <BreathRing size={120} />
           </View>
+        </Section>
+
+        <Section title="Sanat yuvaları (ArtSlot · docs/asset-briefs.md)">
+          {(Object.keys(artSpecs) as AssetId[]).map((id) => (
+            <ArtSlot key={id} id={id} height={96} radius={radius.card} />
+          ))}
         </Section>
       </View>
     </Screen>

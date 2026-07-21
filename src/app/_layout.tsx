@@ -14,7 +14,7 @@ import { useQuickActionRouting } from 'expo-quick-actions/router';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
 import { ThemeProvider, useTheme } from '@/design/theme';
@@ -109,13 +109,28 @@ export default function RootLayout() {
     AlbertSans_700Bold,
   });
 
+  // Splash'ta asla asılı kalma: fontlar yüklenince, hata verince VEYA 3 sn
+  // failsafe timeout ile devam et. Release'de fontlar sessizce takılırsa
+  // (emülatör duman testi bunu göremez — süreç canlı, çökme yok) uygulama
+  // aksi halde sonsuza dek splash'ta kalırdı.
+  // Failsafe: fontlar ne yüklenir ne hata verirse (sessiz takılma) 3 sn sonra devam et.
+  const [timedOut, setTimedOut] = useState(false);
   useEffect(() => {
-    if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError]);
+    const timer = setTimeout(() => setTimedOut(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+  const ready = fontsLoaded || Boolean(fontError) || timedOut;
 
-  if (!fontsLoaded && !fontError) {
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  // UI mount işareti — takılı splash bunu asla basmaz (duman testi bunu arar).
+  useEffect(() => {
+    if (ready) console.log('SAKIN_UI_READY');
+  }, [ready]);
+
+  if (!ready) {
     return null; // splash görünür kalır
   }
 

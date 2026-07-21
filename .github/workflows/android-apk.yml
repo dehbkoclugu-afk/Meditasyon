@@ -64,7 +64,9 @@ jobs:
           grep reactNativeArchitectures android/gradle.properties
 
       - name: APK derle
-        run: cd android && ./gradlew assembleRelease --no-daemon
+        # packageRelease bazen IncrementalSplitterRunnable ile flaky patlıyor;
+        # bir kez otomatik yeniden dene, hata sürerse --stacktrace nedeni basar.
+        run: cd android && (./gradlew assembleRelease --no-daemon --stacktrace || ./gradlew assembleRelease --no-daemon --stacktrace)
 
       - name: Disk durumu
         if: always()
@@ -104,16 +106,21 @@ jobs:
           script: |
             adb install app-release.apk
             adb logcat -c
+            # 1) Açılış
             adb shell monkey -p com.sakin.meditasyon -c android.intent.category.LAUNCHER 1
-            sleep 30
+            sleep 12
+            adb shell pidof com.sakin.meditasyon && echo "ACILIS: SUREC CALISIYOR" || echo "ACILIS: SUREC OLU"
+            # 2) Player'a gir (deep link) — RNTP/ses yolu burada tetiklenir
+            adb shell am start -a android.intent.action.VIEW -d "sakin://player/baslangic-gun-1" com.sakin.meditasyon
+            sleep 25
             adb logcat -d > logcat.txt
-            echo "===== JAVA CRASH ====="
-            grep -B 2 -A 80 "FATAL EXCEPTION" logcat.txt || echo "yok"
-            echo "===== NATIVE CRASH ====="
-            grep -B 2 -A 80 -E "Fatal signal|tombstoned" logcat.txt || echo "yok"
             echo "===== UYGULAMA IZLERI ====="
-            grep -E "sakin|AndroidRuntime|ReactNativeJS|E ReactNative|Hermes|hermes|nitro|Nitro|MMKV|mmkv|TrackPlayer|SoLoader|UnsatisfiedLink" logcat.txt | tail -150 || true
-            adb shell pidof com.sakin.meditasyon && echo "SUREC CALISIYOR" || echo "SUREC OLU"
+            grep -E "sakin|AndroidRuntime|ReactNativeJS|E ReactNative|Hermes|hermes|nitro|Nitro|MMKV|mmkv|TrackPlayer|track_player|SoLoader|UnsatisfiedLink|ExoPlayer|MediaService|ForegroundService" logcat.txt | tail -200 || true
+            # emulator-runner script'i satir satir calistirir — her kontrol TEK satir olmali (cok satirli if/fi bolunur).
+            if grep -qE "FATAL EXCEPTION|Fatal signal|tombstoned|SIGSEGV|SIGABRT|ForegroundServiceStartNotAllowedException|Showing crash dialog" logcat.txt; then echo "::error::Cokme izi bulundu (logcat.txt artifact)"; grep -B 2 -A 40 -E "FATAL EXCEPTION|Fatal signal|tombstoned" logcat.txt | head -140; exit 1; fi
+            if ! adb shell pidof com.sakin.meditasyon > /dev/null; then echo "::error::Surec oldu - player'a girince coktu"; exit 1; fi
+            if ! grep -q "SAKIN_UI_READY" logcat.txt; then echo "::error::UI mount olmadi - splash/blank ekranda takildi"; exit 1; fi
+            echo "OK: UI mount oldu + player acildi, cokme yok"
 
       - name: Logcat'i yükle
         if: always()

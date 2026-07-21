@@ -1,4 +1,5 @@
 export { AppText } from './AppText';
+export { ArtSlot } from './ArtSlot';
 export { BreathRing, breathAnimationMode } from './BreathRing';
 export { Button } from './Button';
 export { CoverArt } from './CoverArt';
