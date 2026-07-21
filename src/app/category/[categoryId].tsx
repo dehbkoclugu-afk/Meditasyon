@@ -2,7 +2,8 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
-import { AppText, CoverArt, EmptyState, Screen, SessionCard } from '@/components';
+import { AppText, ArtSlot, CoverArt, EmptyState, Screen, SessionCard } from '@/components';
+import type { AssetId } from '@/content/art-registry';
 import { canAccessSession } from '@/content/access';
 import { catalog, categoryCoverSeed, sessionsInCategory } from '@/content/catalog';
 import { useOpenSession } from '@/features/navigation';
@@ -34,16 +35,23 @@ export default function CategoryScreen() {
       <Stack.Screen options={{ headerShown: true, title: category.name[locale], headerBackTitle: t('common.back') }} />
       <Screen scroll>
         <View style={styles.stack}>
-          {/* Dev, kırpık kapak: kategori kimliği başlığın üstünde nefes alır */}
-          <View style={styles.headerArt} accessibilityElementsHidden>
-            <View style={styles.headerArtInner}>
-              <CoverArt
-                seed={categoryCoverSeed(category.id).seed}
-                categoryId={category.id as CategoryId}
-                height={280}
-                kind={categoryCoverSeed(category.id).kind}
-              />
-            </View>
+          {/* Kategori kapağı: S6 sahne varsa onu, yoksa üretici CoverArt'a düşer */}
+          <View accessibilityElementsHidden>
+            <ArtSlot
+              id={`S6-${category.id}` as AssetId}
+              height={150}
+              radius={radius.card}
+              fallback={
+                <View style={styles.headerArtInner}>
+                  <CoverArt
+                    seed={categoryCoverSeed(category.id).seed}
+                    categoryId={category.id as CategoryId}
+                    height={280}
+                    kind={categoryCoverSeed(category.id).kind}
+                  />
+                </View>
+              }
+            />
           </View>
           <AppText variant="display1">{category.name[locale]}</AppText>
           {category.tagline && (
@@ -74,6 +82,5 @@ export default function CategoryScreen() {
 
 const styles = StyleSheet.create({
   stack: { gap: space.sm },
-  headerArt: { height: 150, borderRadius: radius.card, overflow: 'hidden' },
   headerArtInner: { marginTop: -65 },
 });

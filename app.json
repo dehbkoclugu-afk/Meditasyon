@@ -4,7 +4,7 @@
     "slug": "sakin",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/brand/S2-appicon.png",
     "scheme": "sakin",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
@@ -25,9 +25,7 @@
       "package": "com.sakin.meditasyon",
       "adaptiveIcon": {
         "backgroundColor": "#0D1412",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/brand/S1-logomark.png"
       },
       "predictiveBackGestureEnabled": false
     },
@@ -48,8 +46,8 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#0D1412",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "image": "./assets/brand/S3-splash.png",
+          "resizeMode": "cover"
         }
       ],
       "expo-quick-actions"
