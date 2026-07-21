@@ -112,13 +112,23 @@ jobs:
             adb shell am start -a android.intent.action.VIEW -d "sakin://player/baslangic-gun-1" com.sakin.meditasyon
             sleep 25
             adb logcat -d > logcat.txt
-            echo "===== JAVA CRASH ====="
-            grep -B 2 -A 80 "FATAL EXCEPTION" logcat.txt || echo "yok"
-            echo "===== NATIVE CRASH ====="
-            grep -B 2 -A 80 -E "Fatal signal|tombstoned|SIGSEGV|SIGABRT" logcat.txt || echo "yok"
             echo "===== UYGULAMA IZLERI ====="
-            grep -E "sakin|AndroidRuntime|ReactNativeJS|E ReactNative|Hermes|hermes|nitro|Nitro|MMKV|mmkv|TrackPlayer|track_player|SoLoader|UnsatisfiedLink|ExoPlayer|MediaService" logcat.txt | tail -200 || true
-            adb shell pidof com.sakin.meditasyon && echo "PLAYER: SUREC CALISIYOR" || echo "PLAYER: SUREC OLU"
+            grep -E "sakin|AndroidRuntime|ReactNativeJS|E ReactNative|Hermes|hermes|nitro|Nitro|MMKV|mmkv|TrackPlayer|track_player|SoLoader|UnsatisfiedLink|ExoPlayer|MediaService|ForegroundService" logcat.txt | tail -200 || true
+            # Çökme = başarısızlık: açılışta VEYA player'a girince crash izi ya da ölü süreç fail eder
+            FAIL=0
+            if grep -qE "FATAL EXCEPTION|Fatal signal|tombstoned|SIGSEGV|SIGABRT|ForegroundServiceStartNotAllowedException|Showing crash dialog" logcat.txt; then
+              echo "::error::Çökme izi bulundu (logcat.txt artifact'ine bak)"
+              echo "===== CRASH ====="
+              grep -B 2 -A 60 -E "FATAL EXCEPTION|Fatal signal|tombstoned" logcat.txt | head -140
+              FAIL=1
+            fi
+            if adb shell pidof com.sakin.meditasyon > /dev/null; then
+              echo "PLAYER: SUREC CALISIYOR"
+            else
+              echo "::error::Süreç öldü — player'a girince çöktü"
+              FAIL=1
+            fi
+            exit $FAIL
 
       - name: Logcat'i yükle
         if: always()
