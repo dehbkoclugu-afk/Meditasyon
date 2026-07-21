@@ -7,6 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "sakin",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": false,
     "ios": {
       "bundleIdentifier": "com.sakin.meditasyon",
       "infoPlist": {
