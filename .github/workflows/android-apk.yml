@@ -114,21 +114,10 @@ jobs:
             adb logcat -d > logcat.txt
             echo "===== UYGULAMA IZLERI ====="
             grep -E "sakin|AndroidRuntime|ReactNativeJS|E ReactNative|Hermes|hermes|nitro|Nitro|MMKV|mmkv|TrackPlayer|track_player|SoLoader|UnsatisfiedLink|ExoPlayer|MediaService|ForegroundService" logcat.txt | tail -200 || true
-            # Çökme = başarısızlık: açılışta VEYA player'a girince crash izi ya da ölü süreç fail eder
-            FAIL=0
-            if grep -qE "FATAL EXCEPTION|Fatal signal|tombstoned|SIGSEGV|SIGABRT|ForegroundServiceStartNotAllowedException|Showing crash dialog" logcat.txt; then
-              echo "::error::Çökme izi bulundu (logcat.txt artifact'ine bak)"
-              echo "===== CRASH ====="
-              grep -B 2 -A 60 -E "FATAL EXCEPTION|Fatal signal|tombstoned" logcat.txt | head -140
-              FAIL=1
-            fi
-            if adb shell pidof com.sakin.meditasyon > /dev/null; then
-              echo "PLAYER: SUREC CALISIYOR"
-            else
-              echo "::error::Süreç öldü — player'a girince çöktü"
-              FAIL=1
-            fi
-            exit $FAIL
+            # emulator-runner script'i satir satir calistirir — her kontrol TEK satir olmali (cok satirli if/fi bolunur).
+            if grep -qE "FATAL EXCEPTION|Fatal signal|tombstoned|SIGSEGV|SIGABRT|ForegroundServiceStartNotAllowedException|Showing crash dialog" logcat.txt; then echo "::error::Cokme izi bulundu (logcat.txt artifact)"; grep -B 2 -A 40 -E "FATAL EXCEPTION|Fatal signal|tombstoned" logcat.txt | head -140; exit 1; fi
+            if ! adb shell pidof com.sakin.meditasyon > /dev/null; then echo "::error::Surec oldu - player'a girince coktu"; exit 1; fi
+            echo "OK: player acildi, cokme yok"
 
       - name: Logcat'i yükle
         if: always()
