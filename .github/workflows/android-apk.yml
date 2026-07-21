@@ -40,8 +40,21 @@ jobs:
       - name: Bağımlılıklar
         run: npm ci
 
+      # Yamanın gerçekten uygulandığını doğrula — uygulanamazsa build durur
+      - name: Yamaları doğrula
+        run: |
+          npx patch-package --error-on-fail
+          F=node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt
+          echo "=== void'e çevrilen coroutine metot sayısı ==="
+          grep -c ") { scope.launch {" "$F"
+          echo "=== kalan Job dönen @ReactMethod (0 olmalı) ==="
+          grep -c "= scope.launch {" "$F" || true
+
       - name: Android projesini üret (prebuild)
         run: npx expo prebuild --platform android --no-install
+
+      - name: Yamaları tekrar doğrula (prebuild sonrası)
+        run: npx patch-package --error-on-fail
 
       # Yalnız gerçek cihaz (arm64) + emülatör (x86_64) mimarileri:
       # derleme süresi ve disk yarıya iner, APK küçülür
