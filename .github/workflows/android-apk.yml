@@ -64,7 +64,9 @@ jobs:
           grep reactNativeArchitectures android/gradle.properties
 
       - name: APK derle
-        run: cd android && ./gradlew assembleRelease --no-daemon
+        # packageRelease bazen IncrementalSplitterRunnable ile flaky patlıyor;
+        # bir kez otomatik yeniden dene, hata sürerse --stacktrace nedeni basar.
+        run: cd android && (./gradlew assembleRelease --no-daemon --stacktrace || ./gradlew assembleRelease --no-daemon --stacktrace)
 
       - name: Disk durumu
         if: always()
